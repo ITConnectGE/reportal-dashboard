@@ -179,17 +179,18 @@ tbody tr.clickable{cursor:pointer}
 </style>
 </head>
 <body>
-<!-- PAYWALL -->
-<div class="paywall-overlay" id="paywall">
-<div class="paywall-card">
-<h2><i class="fas fa-chart-line"></i> FinDash PRO</h2>
-<p class="pw-sub">საქართველოს 1,018 კომპანიის ფინანსური ანალიტიკა<br>ბალანსი • მოგება-ზარალი • სექტორული შედარება</p>
+<!-- PRO UNLOCK MODAL (not blocking - shown on demand) -->
+<div class="paywall-overlay hidden" id="paywall" onclick="this.classList.add('hidden')">
+<div class="paywall-card" onclick="event.stopPropagation()">
+<button onclick="document.getElementById('paywall').classList.add('hidden')" style="position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--text2);font-size:1.2rem;cursor:pointer"><i class="fas fa-times"></i></button>
+<h2><i class="fas fa-crown"></i> FinDash PRO</h2>
+<p class="pw-sub">სრული ფინანსური ანალიტიკა და დეტალური შედარებები</p>
 <ul class="pw-features">
-<li><i class="fas fa-check-circle"></i> 1,018 კომპანიის სრული ფინანსური მონაცემები</li>
-<li><i class="fas fa-check-circle"></i> კომპანიის ძიება და დეტალური ანალიზი</li>
-<li><i class="fas fa-check-circle"></i> სექტორული შედარება - თქვენი პოზიცია ბაზარზე</li>
-<li><i class="fas fa-check-circle"></i> საქსტატის ეროვნული სტატისტიკა</li>
-<li><i class="fas fa-check-circle"></i> ინტერაქტიული გრაფიკები და ექსპორტი</li>
+<li><i class="fas fa-check-circle"></i> კომპანიის სრული ბალანსი და მოგება-ზარალი</li>
+<li><i class="fas fa-check-circle"></i> კონკურენტების სრული სია და შედარება</li>
+<li><i class="fas fa-check-circle"></i> დეტალური ფინანსური რეიტინგები</li>
+<li><i class="fas fa-check-circle"></i> YoY ცვლილებები და ტრენდების ანალიზი</li>
+<li><i class="fas fa-check-circle"></i> მონაცემების ექსპორტი</li>
 </ul>
 <div class="pw-price">₾ 9.99 <span style="font-size:.85rem;font-weight:400;color:var(--text2)">/ თვე</span></div>
 <p class="pw-price-sub">7 დღე უფასო საცდელი პერიოდი</p>
@@ -225,6 +226,7 @@ tbody tr.clickable{cursor:pointer}
 <a href="#geostat">საქსტატი</a>
 <a href="#reportal">Reportal.ge</a>
 <a href="#profiles">პროფილები</a>
+<a href="#" id="proBtn" onclick="event.preventDefault();document.getElementById('paywall').classList.remove('hidden')" style="background:linear-gradient(135deg,#F59E0B,#EF4444);color:#fff;padding:.35rem .75rem;border-radius:8px;font-weight:600;font-size:.78rem"><i class="fas fa-crown"></i> PRO</a>
 </div>
 </nav>
 <div class="overlay" id="overlay" onclick="closeDetail()"></div>
@@ -630,6 +632,12 @@ function unlockPremium(){
   document.getElementById('paywall').classList.add('hidden');
   // Unlock all blurred sections
   document.querySelectorAll('.blurred-section').forEach(function(el){el.classList.remove('locked')});
+  // Update PRO button to show active badge
+  var btn=document.getElementById('proBtn');
+  btn.style.background='linear-gradient(135deg,#22C55E,#06B6D4)';
+  btn.innerHTML='<i class="fas fa-check-circle"></i> PRO';
+  btn.onclick=null;
+  btn.style.cursor='default';
   // Re-render comparison if active
   if(selectedCompanyCode) showComparison(selectedCompanyCode);
 }
@@ -775,9 +783,7 @@ function showComparison(code){
 
 document.addEventListener('DOMContentLoaded',function(){
   renderOverview();renderFinCharts();buildRankData();renderRanking();renderGeostat();renderReportal();renderProfiles();setupScrollSpy();
-  // Show paywall on load
-  document.getElementById('paywall').classList.remove('hidden');
-  // Lock sections
+  // Lock PRO sections (detail tables, peer lists) but keep dashboard open
   lockSections();
 });
 </script>
