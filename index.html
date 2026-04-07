@@ -119,6 +119,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
   <div class="topnav-inner">
     <div class="logo"><i class="fas fa-chart-line"></i> Reportal.ge</div>
     <div class="nav-links">
+      <a href="#geostat"><i class="fas fa-landmark"></i> საქსტატი</a>
       <a href="#statistics"><i class="fas fa-chart-bar"></i> სტატისტიკა</a>
       <a href="#companies"><i class="fas fa-building"></i> კომპანიები</a>
       <a href="#structure"><i class="fas fa-sitemap"></i> ჯგუფის სტრუქტურა</a>
@@ -138,6 +139,46 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
   <!-- Summary Stats -->
   <div class="stats-row" id="statsRow"></div>
+
+  <!-- GeoStat Section -->
+  <div class="section" id="geostat">
+    <h2 class="section-title"><i class="fas fa-landmark"></i> საქსტატი - ეროვნული სტატისტიკა</h2>
+    <div class="stats-row" id="geostatStats"></div>
+    <div class="charts-grid">
+      <div class="chart-card full">
+        <h3><i class="fas fa-coins" style="color:var(--accent);margin-right:.5rem"></i>მშპ (GDP) - მლნ ლარი და ზრდის ტემპი %</h3>
+        <div class="chart-wrap"><canvas id="gdpChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-user-tag" style="color:var(--green);margin-right:.5rem"></i>მშპ ერთ სულზე (GEL და USD)</h3>
+        <div class="chart-wrap"><canvas id="gdpPerCapitaChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-hand-holding-usd" style="color:var(--orange);margin-right:.5rem"></i>პირდაპირი უცხოური ინვესტიციები (FDI), მლნ $</h3>
+        <div class="chart-wrap"><canvas id="fdiChart"></canvas></div>
+      </div>
+      <div class="chart-card full">
+        <h3><i class="fas fa-layer-group" style="color:var(--purple);margin-right:.5rem"></i>მშპ სექტორების მიხედვით (მლნ ლარი)</h3>
+        <div class="chart-wrap"><canvas id="gdpSectorChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-chart-bar" style="color:var(--accent);margin-right:.5rem"></i>ბიზნეს ბრუნვა ზომის მიხედვით (მლნ ლარი)</h3>
+        <div class="chart-wrap"><canvas id="turnoverSizeChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-users" style="color:var(--green);margin-right:.5rem"></i>დასაქმება საწარმოს ზომის მიხედვით</h3>
+        <div class="chart-wrap"><canvas id="employmentChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-wallet" style="color:var(--orange);margin-right:.5rem"></i>საშუალო თვიური ხელფასი (ლარი)</h3>
+        <div class="chart-wrap"><canvas id="earningsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-sort-amount-down" style="color:var(--purple);margin-right:.5rem"></i>ბრუნვა სექტორების მიხედვით 2024 (მლნ ლარი)</h3>
+        <div class="chart-wrap"><canvas id="turnoverSectorChart"></canvas></div>
+      </div>
+    </div>
+  </div>
 
   <!-- Statistics Section -->
   <div class="section" id="statistics">
@@ -202,6 +243,387 @@ tr:hover td{background:rgba(255,255,255,.02)}
 <script>
 // Embedded data
 const DATA = {"companies":[{"code":"202161098","name":"სს ვისოლ პეტროლიუმ ჯორჯია","form":"სააქციო საზოგადოება","activity":"საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი","registration_date":"2000-04-11","address":"ქ თბილისი ჭავჭავაძის გამზირი 74ბ","phone":"+995322915315","web":"www.wissol.ge","directors":[{"PersonalNumber":"01020005032","FirstName":"ვასილი","LastName":"ხორავა","PersonType":null}],"govern_boards":["ნუგზარ აბრამიშვილი, 01021005238","სამსონ ფხაკაძე, 01024006897","ლევან ფხაკაძე, 01024008758"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"Global Investors Limited(Malta)","id":"C38646","country":"მალტა","share":""},{"type":"შვილობილი საწარმო","name":"შპს ვისოლ ავტო ექსპრეს","id":"404878806","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ვისოლ პეტროლიუმ ჯორჯია-ვაკე","id":"204986701","country":"საქართველო","share":"50,00"},{"type":"შვილობილი საწარმო","name":"შპს ერთობა 2018","id":"405255753","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ვისოლი-ყოჩები","id":"205256104","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს კანარგო სტანდარტ ოილ პროდუქტი-ჩუღურეთი","id":"202200000","country":"საქართველო","share":"51,00"}],"audit_firms":{"2023":"შპს ბიდიო აუდიტი","2022":"შპს ბიდიო აუდიტი","2021":"შპს დელოიტი და ტუში"}},{"code":"201948063","name":"სს კოკა-კოლა ბოთლერს ჯორჯია","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა; უძრავ ქონებასთან დაკავშირებული საქმიანობები","registration_date":"1996-04-23","address":"ქ. თბილისი, წერეთლის გამზ. #114","phone":"2942625","web":"www.ccbg.ge","directors":[{"PersonalNumber":"01026000131","FirstName":"ვახტანგ","LastName":"ლაღიძე","PersonType":null}],"govern_boards":["შალვა გიგაია, 01025005261","გიორგი ახალაძე, 01010004568","თემურ ჭყონია, 01008000328","სოფიკო ჭყონია, 01008003563"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"შვილობილი საწარმო","name":"შპს მერკური 99","id":"202064862","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ქობულეთი XXI","id":"247002032","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს  ქინგს ინნ","id":"404515609","country":"საქართველო","share":"89,08"},{"type":"შვილობილი საწარმო","name":"შპს სოლომონი 1805","id":"240418909","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს კალა ინვესტი","id":"202337408","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს დისტრიბუცია 2024","id":"246954176","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ცენტურიონი","id":"247000560","country":"საქართველო","share":"100,00"}],"audit_firms":{"2023":"შპს ფრაისუოთერჰაუსკუპერს საქართველო","2022":"შპს ფრაისუოთერჰაუსკუპერს საქართველო","2021":"შპს ფრაისუოთერჰაუსკუპერს საქართველო"}},{"code":"204968730","name":"სს იბერია რეფრეშმენტსი","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა","registration_date":"2001-08-29","address":null,"phone":null,"web":null,"directors":[{"PersonalNumber":"19770619-01111","FirstName":"ტარას","LastName":"ალექსიიჩუკი","PersonType":null}],"govern_boards":["რაიმონდ ჯონ პოლ ჰეიზლი, LT2097013; LT0458720 /ირლანდია/","სუჰაილ ა.დ. ზაინელდეენ, 01993000133","არამ პეტროსიანი, სომხეთი, 75 3968509; BA3430366 /რუსეთის ფედერაცია/","ალმა ლუის დონოჰოე, 123463411 /დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო/"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"Elsu Inc.","id":"1574854","country":"დიდი ბრიტანეთი","share":""}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს კორა კონსალტინგი","2021":"შპს დელოიტი და ტუში"}},{"code":"205169066","name":"სს ენერგო - პრო ჯორჯია","form":"სააქციო საზოგადოება","activity":"ელექტროენერგიის, აირის, ორთქლის და კონდიცირებული ჰაერის მიწოდება","registration_date":"2006-07-31","address":"საქართველო, თბილისი, ვაკე-საბურთალოს რაიონი, ზურაბ ანჯაფარიძისქ., N19","phone":"032 2471 707","web":"http://www.energo-pro.ge","directors":[{"PersonalNumber":"60003000784","FirstName":"გრიგოლი","LastName":"მამისეიშვილი","PersonType":null}],"govern_boards":["პეტრ ტესარი, 770716/3530 /ჩეხეთის რესპუბლიკა/","პლამენ სტოიანოვი სტეფანოვი, 8202272205, 385679536 /ბულგარეთი/","ქრისტიან ედვარდ ბლეჩფორდ, 46142383, 740702/9905 /ჩეხეთის რესპუბლიკა/"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"სს ენერგო-პრო ჯორჯია ჰოლდინგი","id":"405456082","country":"საქართველო","share":""}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს იუაი","2021":"შპს იუაი"}},{"code":"400194222","name":"სს არგო","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა","registration_date":"2017-01-20","address":"","phone":"","web":"","directors":[{"PersonalNumber":"01008002059","FirstName":"ვასილი","LastName":"სულხანიშვილი","PersonType":null}],"govern_boards":["ჯორჯ ამზაშვილი, 506159204 /აშშ/","გიორგი ახალაძე, 01010004568","ინა სულხანიშვილი, 01008002459"],"report_years":["2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[],"audit_firms":{"2023":"შპს ფი ქეი ეფ ჯორჯია (სს ფი ქეი ეფ კაიზენი)","2022":"სს ფი ქეი ეფ კაიზენი","2021":"სს ფი ქეი ეფ კაიზენი"}},{"code":"206343991","name":"სს გუდვილი","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა; საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი; უძრავ ქონებასთან დაკავშირებული საქმიანობები","registration_date":"2009-09-03","address":null,"phone":null,"web":null,"directors":[{"PersonalNumber":null,"FirstName":null,"LastName":null,"PersonType":"რეაბილიტაციის მმართველი"},{"PersonalNumber":"01024027875","FirstName":"გიორგი","LastName":"ხაბაშვილი","PersonType":"გენერალური დირექტორი"}],"govern_boards":["გიორგი შევარდნაძე, 01007001423","დავით გლუნჩაძე, 01008003491","ირინე ქოსაშვილი, 01021007016"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"შვილობილი საწარმო","name":"შპს ჰიპერმარკეტი საბურთალო","id":"405500079","country":"საქართველო","share":"70,00"}],"audit_firms":{"2023":"შპს ეკოვის ეი-თი-ეი ფინანსები","2022":"შპს ეკოვის ეი-თი-ეი ფინანსები","2021":"შპს ეკოვის ეი-თი-ეი ფინანსები"}},{"code":"405670000","name":"სს ევექსი","form":"სააქციო საზოგადოება","activity":"ჯანდაცვა და სოციალური მომსახურების საქმიანობები","registration_date":"2024-01-11","address":"","phone":"","web":"","directors":[{"PersonalNumber":"01005003603","FirstName":"გიორგი","LastName":"გორდაძე","PersonType":null}],"govern_boards":[],"report_years":["2024"],"subsidiaries":[],"audit_firms":{}},{"code":"202268928","name":"სს ელიტ ელექტრონიქსი","form":"სააქციო საზოგადოება","activity":"საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი","registration_date":"2005-06-09","address":"ქავთარაძის #3","phone":"599493463","web":"www.ee.ge","directors":[{"PersonalNumber":"48001000724","FirstName":"ლადო","LastName":"ჯობავა","PersonType":null}],"govern_boards":["დორი გროსმანი, 0-3730634-7, 37538958 /ისრაელი/","ქეთევან ქვარცხავა, 01030018803","რუსუდან ჭკუასელი, 01017027460"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"შპს ბრიმაგ დიჯითალ ეიჯ","id":"511786378","country":"ისრაელი","share":""},{"type":"შვილობილი საწარმო","name":"შპს ელიტელი","id":"404905849","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ელიტ ტექსტილი","id":"205169039","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ელიტ სერვისი","id":"404858864","country":"საქართველო","share":"90,00"},{"type":"შვილობილი საწარმო","name":"შპს მარკეტპლეისი","id":"405496379","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Elit.EO LLC","id":"1406293461","country":"აზერბაიჯანი","share":"65,00"}],"audit_firms":{"2023":"შპს ბეიკერ ტილი ჯორჯია","2022":"შპს ბეიკერ ტილი ჯორჯია","2021":"შპს ბეიკერ ტილი ჯორჯია"}},{"code":"405103034","name":"სს ბიჯეო ჯგუფი","form":"სააქციო საზოგადოება","activity":"საფინანსო და სადაზღვევო საქმიანობები","registration_date":"2015-05-28","address":"ი. გაგარინის 29ა, თბილისი, საქართველო","phone":null,"web":null,"directors":[{"PersonalNumber":"01031000774","FirstName":"არჩილ","LastName":"გაჩეჩილაძე","PersonType":"გენერალური დირექტორი"}],"govern_boards":[],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"Bank of Georgia Group PLC","id":"10917019","country":"დიდი ბრიტანეთი","share":""},{"type":"შვილობილი საწარმო","name":"სს იდეა","id":"404571263","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს საქართველოს ბანკი","id":"204378869","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ბიჯი ფაინანშიალ","id":"402018918","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს გალტ ენდ თაგარტი","id":"211359206","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"წარმომადგენლობა სს ბიჯი კაპიტალი აზერბაიჯანში","id":"1303493141","country":"აზერბაიჯანი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"გალტ ენდ თაგარტ ჰოლდინგ ლიმიტედი","id":"12179498L","country":"კვიპროსი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ბიჯი კაპიტალი (ბელარუსია)","id":"190981842","country":"ბელარუსი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს დიჯითალ არეა","id":"402096227","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს იზი ბოქსი","id":"405428755","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ექსტრა არეა","id":"402129763","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს სოლო","id":"402013726","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს საქართველოს ფასიანი ქაღალდების გაერთიანებული რეგისტრატორი","id":"205156374","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ექსპრეს ტექნოლოჯიზ","id":"204542003","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ჯორჯიან ქარდი","id":"204396377","country":"საქართველო","share":"99,41"},{"type":"შვილობილი საწარმო","name":"Bank of Georgia Representative Office UK Limited","id":"623 85188","country":"დიდი ბრიტანეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"ფონდი სიცოცხლის ხე","id":"204559432","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Representative Office of JSC Bank of Georgia in Turkey","id":"4840865165","country":"თურქეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Bank of Georgia Representative Office Hungary","id":"23976364-1-41","country":"უნგრეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Georgia Financial Investments","id":"514240076","country":"ისრაელი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Benderlock Investments Limited","id":"12249591H","country":"კვიპროსი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Belarusky Narodny Bank","id":"100513485","country":"ბელარუსი","share":"99,98"},{"type":"შვილობილი საწარმო","name":"BNB Leasing LLC","id":"190704129","country":"ბელარუსი","share":"99,90"},{"type":"შვილობილი საწარმო","name":"შპს საქართველოს სალიზინგო კომპანია","id":"204972155","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს პრაიმ ლიზინგი","id":"401967109","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს დაირექტ დებიტ ჯორჯია","id":"205130464","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს დიდი დიღმის კვლევითი ცენტრი","id":"202383599","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს მეტრო სერვის +","id":"205150352","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"OPTIMO, FE LLC","id":"310750122","country":"უზბეკეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს დელივერი","id":"405243838","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ელ.ბილეთები","id":"205268869","country":"საქართველო","share":"81,38"},{"type":"შვილობილი საწარმო","name":"შპს თიქეთინგ არეა","id":"405633747","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს საქართველოს ბანკის სასწავლო უნივერსიტეტი","id":"405014979","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს  ოპტიმო  გლობალ","id":"405576372","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ბი ოუ ჯი აქტივების მართვა","id":"404696389","country":"საქართველო","share":"100,00"}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს იუაი","2021":"შპს იუაი"}},{"code":"201991229","name":"სს გეფა","form":"სააქციო საზოგადოება","activity":"საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი; ჯანდაცვა და სოციალური მომსახურების საქმიანობები","registration_date":"1995-10-19","address":"ბელიაშვილის 42","phone":"322911900","web":null,"directors":[{"PersonalNumber":"01009011104","FirstName":"თორნიკე","LastName":"ნიკოლაიშვილი","PersonType":null}],"govern_boards":["გიორგი ალფაიძე, 60001032791","ლევანი დადიანი, 01022005562","მიხეილ აბრამიძე, 01002008161","გიორგი კეთილაძე, 01024060426"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"სს საქართველოს ჯანდაცვის ჯგუფი","id":"405098399","country":"საქართველო","share":""},{"type":"შვილობილი საწარმო","name":"შპს ეი-ბი-სი ფარმალოჯისტიკსი","id":"205022580","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ივერთა","id":"402179432","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ევროლაინი","id":"402025036","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს საქართველოს ლოჯისტიკა","id":"402194665","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"ABC Pharmacy LLC","id":"00129804","country":"სომხეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Azpha LLC","id":"1805522941","country":"აზერბაიჯანი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს \u201EAKG AVELIN QAN DEGHATUN\u201C","id":"02810396","country":"აზერბაიჯანი","share":"100,00"}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს იუაი","2021":"შპს იუაი"}}],"statistics":{"2024":{"total_enterprises":83249,"categories":{"სდპ":{"published":135,"in_progress":1},"I":{"published":177,"in_progress":0},"II":{"published":778,"in_progress":12},"III":{"published":5646,"in_progress":55},"IV":{"published":76403,"in_progress":41},"I ჯგუფი":{"published":151,"in_progress":1},"II ჯგუფი":{"published":250,"in_progress":7},"III ჯგუფი":{"published":414,"in_progress":0},"IV ჯგუფი":{"published":252,"in_progress":6}}},"2023":{"total_enterprises":84479,"categories":{"სდპ":{"published":132,"in_progress":0},"I":{"published":163,"in_progress":1},"II":{"published":767,"in_progress":3},"III":{"published":5439,"in_progress":26},"IV":{"published":77914,"in_progress":34},"I ჯგუფი":{"published":149,"in_progress":1},"II ჯგუფი":{"published":253,"in_progress":0},"III ჯგუფი":{"published":404,"in_progress":1},"IV ჯგუფი":{"published":235,"in_progress":1}}},"2022":{"total_enterprises":82686,"categories":{"სდპ":{"published":130,"in_progress":0},"I":{"published":147,"in_progress":1},"II":{"published":690,"in_progress":6},"III":{"published":5021,"in_progress":48},"IV":{"published":76613,"in_progress":38},"I ჯგუფი":{"published":139,"in_progress":1},"II ჯგუფი":{"published":226,"in_progress":4},"III ჯგუფი":{"published":391,"in_progress":2},"IV ჯგუფი":{"published":215,"in_progress":2}}},"2021":{"total_enterprises":80644,"categories":{"სდპ":{"published":131,"in_progress":0},"I":{"published":123,"in_progress":0},"II":{"published":617,"in_progress":5},"III":{"published":4567,"in_progress":39},"IV":{"published":75127,"in_progress":35},"I ჯგუფი":{"published":126,"in_progress":0},"II ჯგუფი":{"published":215,"in_progress":0},"III ჯგუფი":{"published":353,"in_progress":1},"IV ჯგუფი":{"published":243,"in_progress":2}}},"2020":{"total_enterprises":70969,"categories":{"სდპ":{"published":137,"in_progress":1},"I":{"published":111,"in_progress":0},"II":{"published":573,"in_progress":1},"III":{"published":4347,"in_progress":26},"IV":{"published":65710,"in_progress":63},"I ჯგუფი":{"published":115,"in_progress":0},"II ჯგუფი":{"published":212,"in_progress":1},"III ჯგუფი":{"published":328,"in_progress":1},"IV ჯგუფი":{"published":227,"in_progress":6}}},"2019":{"total_enterprises":14442,"categories":{"სდპ":{"published":94,"in_progress":2},"I":{"published":117,"in_progress":1},"II":{"published":539,"in_progress":4},"III":{"published":3762,"in_progress":60},"IV":{"published":9839,"in_progress":25},"I ჯგუფი":{"published":105,"in_progress":1},"II ჯგუფი":{"published":188,"in_progress":0},"III ჯგუფი":{"published":277,"in_progress":2},"IV ჯგუფი":{"published":46,"in_progress":1}}}}};
+
+// ===== GEOSTAT DATA =====
+const GEOSTAT = {"gdp":{"market_mln_gel":{"2015":"34548","2016":"36553","2017":"41340","2018":"45374","2019":"49726","2020":"49789","2021":"60724","2022":"72860","2023":"80883","2024":"93022"},"per_capita_gel":{"2015":"9274","2016":"9806","2017":"11089","2018":"12176","2019":"13367","2020":"13374","2021":"16374","2022":"19626","2023":"21769","2024":"25144"},"per_capita_usd":{"2015":"4085","2016":"4143","2017":"4420","2018":"4804","2019":"4741","2020":"4301","2021":"5084","2022":"6731","2023":"8284","2024":"9241"},"mln_usd":{"2015":"15218.2554","2016":"15444.7322","2017":"16478.9860","2018":"17902.3865","2019":"17638.7019","2020":"16010.7348","2021":"18852.9875","2022":"24989.4725","2023":"30779.0553","2024":"34189.4235"}},"gdp_by_sector":{"სოფლის მეურნეობა":{"2015":"2951.1","2016":"2925.4","2017":"2860.2","2018":"3431.0","2019":"3647.6","2020":"4140.7","2021":"4388.7","2022":"4832.3","2023":"4865.7","2024":"5102.7"},"მრეწველობა":{"2015":"3191.8","2016":"2845.2","2017":"3625.8","2018":"4109.6","2019":"4388.6","2020":"4694.2","2021":"6021.4","2022":"7084.4","2023":"6758.0","2024":"7848.0"},"მშენებლობა":{"2015":"2492.2","2016":"2832.0","2017":"3656.1","2018":"3705.0","2019":"3717.6","2020":"3780.5","2021":"3839.2","2022":"5100.6","2023":"5362.8","2024":"6894.2"},"ვაჭრობა":{"2015":"4149.8","2016":"4347.0","2017":"4856.8","2018":"5414.1","2019":"6186.3","2020":"6399.8","2021":"8116.1","2022":"9595.5","2023":"11243.8","2024":"12433.8"},"ტრანსპორტი":{"2015":"1881.9","2016":"1797.2","2017":"1949.7","2018":"2240.0","2019":"2890.0","2020":"2609.2","2021":"3206.1","2022":"4109.0","2023":"4307.8","2024":"5071.7"},"ტურიზმი":{"2015":"961.9","2016":"1158.2","2017":"1464.1","2018":"1748.6","2019":"2300.2","2020":"1168.1","2021":"1732.2","2022":"2397.9","2023":"2691.1","2024":"3228.1"},"IT":{"2015":"933.7","2016":"963.9","2017":"994.7","2018":"1118.3","2019":"1324.7","2020":"1384.8","2021":"1874.8","2022":"3183.3","2023":"4208.1","2024":"5160.4"},"ფინანსები":{"2015":"1632.1","2016":"1621.8","2017":"1915.5","2018":"2160.4","2019":"2062.6","2020":"2089.4","2021":"2619.2","2022":"3151.0","2023":"3503.0","2024":"3959.0"}},"gdp_growth":{"2015":"103.4","2016":"103.4","2017":"105.2","2018":"106.1","2019":"105.4","2020":"93.7","2021":"110.6","2022":"111.0","2023":"107.8","2024":"109.7"},"fdi_mln_usd":{"2015":"1728.8","2016":"1654.0","2017":"1990.5","2018":"1350.6","2019":"1367.8","2020":"596.2","2021":"1264.9","2022":"2224.2","2023":"1928.5","2024":"1569.3","2025":"183.6"},"turnover_by_size":{"სულ":{"2015":"56984.8","2016":"64081.8","2017":"71740.1","2018":"86625.1","2019":"109024.3","2020":"114348.5","2021":"150414.9","2022":"181765.5","2023":"204647.5","2024":"228473.1"},"მსხვილი":{"2015":"24671.6","2016":"28256.3","2017":"32201.1","2018":"42902.7","2019":"60504.6","2020":"66694.6","2021":"98245.9","2022":"119119.0","2023":"136660.0","2024":"154592.7"},"საშუალო":{"2015":"13294.6","2016":"14039.1","2017":"16568.3","2018":"18543.2","2019":"21065.5","2020":"20484.6","2021":"24350.3","2022":"29317.7","2023":"31330.3","2024":"36099.4"},"მცირე":{"2015":"19018.7","2016":"21786.4","2017":"22970.7","2018":"25179.1","2019":"27454.2","2020":"27169.3","2021":"27818.7","2022":"33328.8","2023":"36657.2","2024":"37780.9"}},"turnover_by_sector":{"სულ (მლნ. ლარი)":{"2015":"56984.8","2016":"64081.8","2017":"71740.1","2018":"86625.1","2019":"109024.3","2020":"114348.5","2021":"150414.9","2022":"181765.5","2023":"204647.5","2024":"228473.1"},"სოფლის, სატყეო და თევზის მეურნეობა":{"2024":"1032.9"},"მრეწველობა":{"2024":"26362.3"},"მშენებლობა":{"2024":"15136.1"},"საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი":{"2024":"78524.0"},"ტრანსპორტირება და დასაწყობება":{"2024":"10459.3"},"განთავსების საშუალებებით უზრუნველყოფის და საკვების მიწოდების საქმიანობები":{"2024":"3442.0"},"ინფორმაცია და კომუნიკაცია":{"2024":"6794.1"},"უძრავ ქონებასთან დაკავშირებული საქმიანობები":{"2024":"2322.1"},"პროფესიული, სამეცნიერო და ტექნიკური საქმიანობები":{"2024":"2645.5"},"ხელოვნება, გართობა და დასვენება":{"2024":"76620.6"},"ჯანდაცვა და სოციალური მომსახურების საქმიანობები":{"2024":"1912.0"},"განათლება":{"2024":"949.9"},"ადმინისტრაციული და დამხმარე მომსახურების საქმიანობები":{"2024":"1949.7"},"სხვა სახის მომსახურება":{"2024":"322.7"}},"employment_by_size":{"სულ (კაცი)":{"2015":"626739","2016":"666790","2017":"708165","2018":"734215","2019":"756852","2020":"703874","2021":"744256","2022":"779418","2023":"823561","2024":"866152"},"მსხვილი":{"2015":"198586","2016":"217800","2017":"233589","2018":"243318","2019":"265184","2020":"261710","2021":"284181","2022":"311007","2023":"332599","2024":"341261"},"საშუალო":{"2015":"137171","2016":"142447","2017":"145463","2018":"160095","2019":"152516","2020":"152458","2021":"146950","2022":"158002","2023":"163086","2024":"176227"},"მცირე":{"2015":"290982","2016":"306543","2017":"329112","2018":"330803","2019":"339152","2020":"289706","2021":"313125","2022":"310409","2023":"327876","2024":"348663"}},"avg_monthly_earnings":{"სულ (ლარი)":{"2015":"896.8","2016":"938.3","2017":"1019.7","2018":"1101.3","2019":"1161.7","2020":"1222.9","2021":"1347.6","2022":"1605.9","2023":"1827.3","2024":"2024.4"},"მსხვილი":{"2015":"1103.7","2016":"1129.5","2017":"1195.9","2018":"1224.6","2019":"1303.3","2020":"1322.9","2021":"1515.4","2022":"1822.4","2023":"2077.2","2024":"2297.4"},"საშუალო":{"2015":"1030.5","2016":"1085.9","2017":"1196.9","2018":"1276.3","2019":"1416.8","2020":"1419.6","2021":"1616.9","2022":"1862.2","2023":"2199.7","2024":"2443.8"},"მცირე":{"2015":"659.0","2016":"697.7","2017":"776.1","2018":"892.4","2019":"893.5","2020":"991.6","2021":"1008.4","2022":"1187.2","2023":"1306.5","2024":"1437.5"}}};
+
+// ===== GEOSTAT SUMMARY STATS =====
+const geoYears = Object.keys(GEOSTAT.gdp.market_mln_gel).sort();
+document.getElementById('geostatStats').innerHTML = `
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fas fa-coins"></i></div>
+    <div class="stat-value">93,022 <small style="font-size:.6em;color:var(--text-muted)">მლნ ₾</small></div>
+    <div class="stat-label">მშპ 2024</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="fas fa-arrow-trend-up"></i></div>
+    <div class="stat-value">9.7%</div>
+    <div class="stat-label">მშპ ზრდა 2024</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon orange"><i class="fas fa-hand-holding-usd"></i></div>
+    <div class="stat-value">1,569 <small style="font-size:.6em;color:var(--text-muted)">მლნ $</small></div>
+    <div class="stat-label">FDI 2024</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple"><i class="fas fa-users"></i></div>
+    <div class="stat-value">866,152</div>
+    <div class="stat-label">დასაქმებულები 2024</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fas fa-wallet"></i></div>
+    <div class="stat-value">2,024 <small style="font-size:.6em;color:var(--text-muted)">₾</small></div>
+    <div class="stat-label">საშუალო ხელფასი 2024</div>
+  </div>
+`;
+
+// ===== GDP DUAL AXIS CHART =====
+new Chart(document.getElementById('gdpChart'), {
+  type: 'bar',
+  data: {
+    labels: geoYears,
+    datasets: [{
+      label: 'მშპ (მლნ ₾)',
+      data: geoYears.map(y => parseFloat(GEOSTAT.gdp.market_mln_gel[y])),
+      backgroundColor: 'rgba(59,130,246,0.6)',
+      borderColor: '#3B82F6',
+      borderWidth: 1,
+      borderRadius: 4,
+      yAxisID: 'y',
+      order: 2
+    },{
+      label: 'ზრდა %',
+      data: geoYears.map(y => parseFloat(GEOSTAT.gdp_growth[y]) - 100),
+      borderColor: '#22c55e',
+      backgroundColor: 'rgba(34,197,94,0.15)',
+      type: 'line',
+      fill: false,
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: '#22c55e',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      yAxisID: 'y1',
+      order: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            if (ctx.dataset.yAxisID === 'y1') return `ზრდა: ${ctx.parsed.y.toFixed(1)}%`;
+            return `მშპ: ${ctx.parsed.y.toLocaleString()} მლნ ₾`;
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        position: 'left',
+        beginAtZero: true,
+        title: { display: true, text: 'მლნ ₾', color: '#94a3b8' },
+        ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+      },
+      y1: {
+        position: 'right',
+        title: { display: true, text: 'ზრდა %', color: '#22c55e' },
+        grid: { drawOnChartArea: false },
+        ticks: { callback: v => v.toFixed(1) + '%' }
+      }
+    }
+  }
+});
+
+// ===== GDP PER CAPITA CHART =====
+new Chart(document.getElementById('gdpPerCapitaChart'), {
+  type: 'line',
+  data: {
+    labels: geoYears,
+    datasets: [{
+      label: 'ერთ სულზე (₾)',
+      data: geoYears.map(y => parseFloat(GEOSTAT.gdp.per_capita_gel[y])),
+      borderColor: '#3B82F6',
+      backgroundColor: 'rgba(59,130,246,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 4,
+      pointBackgroundColor: '#3B82F6',
+      yAxisID: 'y'
+    },{
+      label: 'ერთ სულზე ($)',
+      data: geoYears.map(y => parseFloat(GEOSTAT.gdp.per_capita_usd[y])),
+      borderColor: '#f59e0b',
+      backgroundColor: 'rgba(245,158,11,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 4,
+      pointBackgroundColor: '#f59e0b',
+      yAxisID: 'y1'
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
+        }
+      }
+    },
+    scales: {
+      y: {
+        position: 'left',
+        title: { display: true, text: '₾', color: '#3B82F6' },
+        ticks: { callback: v => v.toLocaleString() }
+      },
+      y1: {
+        position: 'right',
+        title: { display: true, text: '$', color: '#f59e0b' },
+        grid: { drawOnChartArea: false },
+        ticks: { callback: v => v.toLocaleString() }
+      }
+    }
+  }
+});
+
+// ===== FDI BAR CHART =====
+const fdiYears = geoYears.filter(y => GEOSTAT.fdi_mln_usd[y]);
+new Chart(document.getElementById('fdiChart'), {
+  type: 'bar',
+  data: {
+    labels: fdiYears,
+    datasets: [{
+      label: 'FDI (მლნ $)',
+      data: fdiYears.map(y => parseFloat(GEOSTAT.fdi_mln_usd[y])),
+      backgroundColor: fdiYears.map(y => parseFloat(GEOSTAT.fdi_mln_usd[y]) > 1500 ? 'rgba(34,197,94,0.7)' : parseFloat(GEOSTAT.fdi_mln_usd[y]) > 1000 ? 'rgba(59,130,246,0.7)' : 'rgba(245,158,11,0.7)'),
+      borderRadius: 6,
+      maxBarThickness: 50
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => `FDI: ${ctx.parsed.y.toLocaleString()} მლნ $`
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        title: { display: true, text: 'მლნ $', color: '#94a3b8' },
+        ticks: { callback: v => v.toLocaleString() }
+      }
+    }
+  }
+});
+
+// ===== GDP BY SECTOR STACKED AREA =====
+const sectorNames = Object.keys(GEOSTAT.gdp_by_sector);
+const sectorColors = ['#22c55e','#3B82F6','#f59e0b','#a855f7','#ef4444','#06b6d4','#ec4899','#84cc16'];
+new Chart(document.getElementById('gdpSectorChart'), {
+  type: 'bar',
+  data: {
+    labels: geoYears,
+    datasets: sectorNames.map((name, i) => ({
+      label: name,
+      data: geoYears.map(y => parseFloat(GEOSTAT.gdp_by_sector[name][y])),
+      backgroundColor: sectorColors[i],
+      borderRadius: 0
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 12, font: { size: 11 } } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} მლნ ₾`
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        title: { display: true, text: 'მლნ ₾', color: '#94a3b8' },
+        ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+      }
+    }
+  }
+});
+
+// ===== TURNOVER BY SIZE STACKED BAR =====
+const turnoverSizes = ['მსხვილი','საშუალო','მცირე'];
+const turnSizeColors = ['#3B82F6','#f59e0b','#a855f7'];
+new Chart(document.getElementById('turnoverSizeChart'), {
+  type: 'bar',
+  data: {
+    labels: geoYears,
+    datasets: turnoverSizes.map((size, i) => ({
+      label: size,
+      data: geoYears.map(y => parseFloat(GEOSTAT.turnover_by_size[size][y])),
+      backgroundColor: turnSizeColors[i],
+      borderRadius: 2
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} მლნ ₾`
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        title: { display: true, text: 'მლნ ₾', color: '#94a3b8' },
+        ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+      }
+    }
+  }
+});
+
+// ===== EMPLOYMENT BY SIZE STACKED BAR =====
+const empSizes = ['მსხვილი','საშუალო','მცირე'];
+const empColors = ['#22c55e','#06b6d4','#ec4899'];
+new Chart(document.getElementById('employmentChart'), {
+  type: 'bar',
+  data: {
+    labels: geoYears,
+    datasets: empSizes.map((size, i) => ({
+      label: size,
+      data: geoYears.map(y => parseFloat(GEOSTAT.employment_by_size[size][y])),
+      backgroundColor: empColors[i],
+      borderRadius: 2
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} კაცი`
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        title: { display: true, text: 'დასაქმებულები', color: '#94a3b8' },
+        ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+      }
+    }
+  }
+});
+
+// ===== AVERAGE MONTHLY EARNINGS LINE CHART =====
+const earnKeys = ['სულ (ლარი)','მსხვილი','საშუალო','მცირე'];
+const earnLabels = ['სულ','მსხვილი','საშუალო','მცირე'];
+const earnColors = ['#3B82F6','#22c55e','#f59e0b','#a855f7'];
+new Chart(document.getElementById('earningsChart'), {
+  type: 'line',
+  data: {
+    labels: geoYears,
+    datasets: earnKeys.map((key, i) => ({
+      label: earnLabels[i],
+      data: geoYears.map(y => parseFloat(GEOSTAT.avg_monthly_earnings[key][y])),
+      borderColor: earnColors[i],
+      backgroundColor: 'transparent',
+      tension: 0.4,
+      pointRadius: 4,
+      pointBackgroundColor: earnColors[i],
+      pointBorderColor: '#fff',
+      pointBorderWidth: 1,
+      borderWidth: 2.5
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()} ₾`
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        title: { display: true, text: '₾ / თვე', color: '#94a3b8' },
+        ticks: { callback: v => v.toLocaleString() }
+      }
+    }
+  }
+});
+
+// ===== TURNOVER BY SECTOR HORIZONTAL BAR (2024, top 8) =====
+const sectorTurnover = Object.entries(GEOSTAT.turnover_by_sector)
+  .filter(([k]) => k !== 'სულ (მლნ. ლარი)')
+  .map(([name, data]) => ({ name: name.length > 35 ? name.substring(0,35)+'...' : name, fullName: name, value: parseFloat(data['2024'] || 0) }))
+  .sort((a, b) => b.value - a.value)
+  .slice(0, 8);
+const hBarColors = ['#3B82F6','#22c55e','#f59e0b','#a855f7','#ef4444','#06b6d4','#ec4899','#84cc16'];
+new Chart(document.getElementById('turnoverSectorChart'), {
+  type: 'bar',
+  data: {
+    labels: sectorTurnover.map(s => s.name),
+    datasets: [{
+      label: 'ბრუნვა 2024 (მლნ ₾)',
+      data: sectorTurnover.map(s => s.value),
+      backgroundColor: hBarColors,
+      borderRadius: 6,
+      maxBarThickness: 30
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          title: ctx => sectorTurnover[ctx[0].dataIndex].fullName,
+          label: ctx => `${ctx.parsed.x.toLocaleString()} მლნ ₾`
+        }
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        title: { display: true, text: 'მლნ ₾', color: '#94a3b8' },
+        ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+      },
+      y: {
+        ticks: { font: { size: 10 } }
+      }
+    }
+  }
+});
 
 // ===== SUMMARY STATS =====
 const years = Object.keys(DATA.statistics).sort();
