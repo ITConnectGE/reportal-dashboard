@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportal.ge - ფინანსური დეშბორდი</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0f172a;--card:#1e293b;--card-hover:#263548;--border:#334155;--text:#e2e8f0;--text-muted:#94a3b8;--accent:#3B82F6;--accent-light:#60a5fa;--accent-dark:#2563eb;--green:#22c55e;--orange:#f59e0b;--red:#ef4444;--purple:#a855f7}
+html{scroll-behavior:smooth}
+body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+a{color:var(--accent-light);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+
+/* Nav */
+.topnav{position:sticky;top:0;z-index:100;background:rgba(15,23,42,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 2rem}
+.topnav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+.topnav .logo{font-size:1.25rem;font-weight:700;color:var(--accent-light)}
+.topnav .logo i{margin-right:.5rem}
+.nav-links{display:flex;gap:1.5rem}
+.nav-links a{color:var(--text-muted);font-size:.875rem;transition:color .2s}
+.nav-links a:hover{color:var(--accent-light);text-decoration:none}
+
+/* Container */
+.container{max-width:1400px;margin:0 auto;padding:2rem}
+
+/* Header */
+.header{text-align:center;margin-bottom:2.5rem}
+.header h1{font-size:2.25rem;font-weight:800;background:linear-gradient(135deg,var(--accent-light),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.5rem}
+.header p{color:var(--text-muted);font-size:1.05rem}
+
+/* Stats cards */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;margin-bottom:3rem}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;transition:transform .25s,box-shadow .25s}
+.stat-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(59,130,246,.15)}
+.stat-card .stat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:1rem}
+.stat-card .stat-icon.blue{background:rgba(59,130,246,.15);color:var(--accent)}
+.stat-card .stat-icon.green{background:rgba(34,197,94,.15);color:var(--green)}
+.stat-card .stat-icon.orange{background:rgba(245,158,11,.15);color:var(--orange)}
+.stat-card .stat-icon.purple{background:rgba(168,85,247,.15);color:var(--purple)}
+.stat-card .stat-value{font-size:1.75rem;font-weight:800;color:#fff}
+.stat-card .stat-label{font-size:.85rem;color:var(--text-muted);margin-top:.25rem}
+
+/* Section */
+.section{margin-bottom:3rem}
+.section-title{font-size:1.5rem;font-weight:700;margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem}
+.section-title i{color:var(--accent);font-size:1.25rem}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Chart containers */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;overflow:hidden}
+.chart-card.full{grid-column:1/-1}
+.chart-card h3{font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text)}
+.chart-wrap{position:relative;width:100%;max-height:380px}
+
+/* Company cards */
+.company-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem}
+.company-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s}
+.company-card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(59,130,246,.12);border-color:var(--accent)}
+.company-card .cc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem}
+.company-card .cc-name{font-size:1.05rem;font-weight:700;color:#fff;line-height:1.3}
+.company-card .cc-badge{background:rgba(59,130,246,.15);color:var(--accent-light);font-size:.7rem;padding:.2rem .6rem;border-radius:20px;white-space:nowrap}
+.company-card .cc-meta{display:flex;flex-direction:column;gap:.35rem;font-size:.82rem;color:var(--text-muted)}
+.company-card .cc-meta span i{width:18px;color:var(--accent);margin-right:.35rem}
+.company-card .cc-details{display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);animation:fadeIn .3s ease}
+.company-card.expanded .cc-details{display:block}
+.company-card .cc-expand-hint{text-align:center;margin-top:.75rem;font-size:.75rem;color:var(--text-muted)}
+.company-card.expanded .cc-expand-hint .hint-closed{display:none}
+.company-card:not(.expanded) .cc-expand-hint .hint-open{display:none}
+.detail-group{margin-bottom:.75rem}
+.detail-group h4{font-size:.8rem;font-weight:600;color:var(--accent-light);margin-bottom:.35rem;text-transform:uppercase;letter-spacing:.5px}
+.detail-group ul{list-style:none;padding:0}
+.detail-group ul li{font-size:.8rem;color:var(--text-muted);padding:.2rem 0;padding-left:1rem;position:relative}
+.detail-group ul li::before{content:'';position:absolute;left:0;top:50%;width:5px;height:5px;border-radius:50%;background:var(--border);transform:translateY(-50%)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Tables */
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:rgba(59,130,246,.1);color:var(--accent-light);font-weight:600;text-align:left;padding:.75rem 1rem;white-space:nowrap}
+td{padding:.6rem 1rem;border-top:1px solid var(--border);color:var(--text-muted)}
+tr:hover td{background:rgba(255,255,255,.02)}
+
+/* Heatmap */
+.heatmap-grid{display:grid;gap:2px;font-size:.75rem}
+.heatmap-cell{border-radius:6px;display:flex;align-items:center;justify-content:center;padding:.5rem .25rem;font-weight:600;min-height:40px;transition:transform .15s}
+.heatmap-cell:hover{transform:scale(1.05)}
+.hm-yes{background:rgba(59,130,246,.3);color:var(--accent-light)}
+.hm-no{background:rgba(51,65,85,.3);color:#475569}
+.hm-header{background:transparent;color:var(--text-muted);font-weight:600;font-size:.7rem}
+.hm-company{background:transparent;color:var(--text);font-weight:600;text-align:right;padding-right:.5rem;font-size:.72rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Responsive */
+@media(max-width:900px){
+  .charts-grid{grid-template-columns:1fr}
+  .company-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .container{padding:1rem}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .header h1{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-inner">
+    <div class="logo"><i class="fas fa-chart-line"></i> Reportal.ge</div>
+    <div class="nav-links">
+      <a href="#statistics"><i class="fas fa-chart-bar"></i> სტატისტიკა</a>
+      <a href="#companies"><i class="fas fa-building"></i> კომპანიები</a>
+      <a href="#structure"><i class="fas fa-sitemap"></i> ჯგუფის სტრუქტურა</a>
+      <a href="#audit"><i class="fas fa-clipboard-check"></i> აუდიტი</a>
+      <a href="#history"><i class="fas fa-calendar-alt"></i> ისტორია</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <h1><i class="fas fa-chart-pie"></i> Reportal.ge - ფინანსური დეშბორდი</h1>
+    <p>საქართველოს ფინანსური ანგარიშგების პორტალის მონაცემები (2019-2024)</p>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="stats-row" id="statsRow"></div>
+
+  <!-- Statistics Section -->
+  <div class="section" id="statistics">
+    <h2 class="section-title"><i class="fas fa-chart-bar"></i> სტატისტიკა</h2>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3><i class="fas fa-line-chart" style="color:var(--accent);margin-right:.5rem"></i>რეგისტრირებული საწარმოები წლების მიხედვით</h3>
+        <div class="chart-wrap"><canvas id="lineChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-chart-pie" style="color:var(--purple);margin-right:.5rem"></i>კატეგორიების განაწილება 2024</h3>
+        <div class="chart-wrap"><canvas id="doughnutChart"></canvas></div>
+      </div>
+      <div class="chart-card full">
+        <h3><i class="fas fa-layer-group" style="color:var(--orange);margin-right:.5rem"></i>ანგარიშგებები კატეგორიების მიხედვით (წლიური)</h3>
+        <div class="chart-wrap"><canvas id="stackedBar"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Companies Section -->
+  <div class="section" id="companies">
+    <h2 class="section-title"><i class="fas fa-building"></i> კომპანიები</h2>
+    <div class="company-grid" id="companyGrid"></div>
+  </div>
+
+  <!-- Group Structure Section -->
+  <div class="section" id="structure">
+    <h2 class="section-title"><i class="fas fa-sitemap"></i> ჯგუფის სტრუქტურა</h2>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3><i class="fas fa-code-branch" style="color:var(--green);margin-right:.5rem"></i>შვილობილი საწარმოების რაოდენობა</h3>
+        <div class="chart-wrap"><canvas id="subsidBar"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-table" style="color:var(--accent);margin-right:.5rem"></i>მშობელი-შვილობილი ურთიერთობები</h3>
+        <div class="table-wrap" id="subsidTable"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audit Section -->
+  <div class="section" id="audit">
+    <h2 class="section-title"><i class="fas fa-clipboard-check"></i> აუდიტი</h2>
+    <div class="chart-card full">
+      <h3><i class="fas fa-search" style="color:var(--orange);margin-right:.5rem"></i>აუდიტორული ფირმები კომპანიების მიხედვით</h3>
+      <div class="table-wrap" id="auditTable"></div>
+    </div>
+  </div>
+
+  <!-- Reporting History Section -->
+  <div class="section" id="history">
+    <h2 class="section-title"><i class="fas fa-calendar-alt"></i> ანგარიშგების ისტორია</h2>
+    <div class="chart-card full">
+      <h3><i class="fas fa-th" style="color:var(--green);margin-right:.5rem"></i>კომპანიების ანგარიშგება წლების მიხედვით (2017-2024)</h3>
+      <div id="heatmap" style="overflow-x:auto"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Embedded data
+const DATA = {"companies":[{"code":"202161098","name":"სს ვისოლ პეტროლიუმ ჯორჯია","form":"სააქციო საზოგადოება","activity":"საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი","registration_date":"2000-04-11","address":"ქ თბილისი ჭავჭავაძის გამზირი 74ბ","phone":"+995322915315","web":"www.wissol.ge","directors":[{"PersonalNumber":"01020005032","FirstName":"ვასილი","LastName":"ხორავა","PersonType":null}],"govern_boards":["ნუგზარ აბრამიშვილი, 01021005238","სამსონ ფხაკაძე, 01024006897","ლევან ფხაკაძე, 01024008758"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"Global Investors Limited(Malta)","id":"C38646","country":"მალტა","share":""},{"type":"შვილობილი საწარმო","name":"შპს ვისოლ ავტო ექსპრეს","id":"404878806","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ვისოლ პეტროლიუმ ჯორჯია-ვაკე","id":"204986701","country":"საქართველო","share":"50,00"},{"type":"შვილობილი საწარმო","name":"შპს ერთობა 2018","id":"405255753","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ვისოლი-ყოჩები","id":"205256104","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს კანარგო სტანდარტ ოილ პროდუქტი-ჩუღურეთი","id":"202200000","country":"საქართველო","share":"51,00"}],"audit_firms":{"2023":"შპს ბიდიო აუდიტი","2022":"შპს ბიდიო აუდიტი","2021":"შპს დელოიტი და ტუში"}},{"code":"201948063","name":"სს კოკა-კოლა ბოთლერს ჯორჯია","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა; უძრავ ქონებასთან დაკავშირებული საქმიანობები","registration_date":"1996-04-23","address":"ქ. თბილისი, წერეთლის გამზ. #114","phone":"2942625","web":"www.ccbg.ge","directors":[{"PersonalNumber":"01026000131","FirstName":"ვახტანგ","LastName":"ლაღიძე","PersonType":null}],"govern_boards":["შალვა გიგაია, 01025005261","გიორგი ახალაძე, 01010004568","თემურ ჭყონია, 01008000328","სოფიკო ჭყონია, 01008003563"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"შვილობილი საწარმო","name":"შპს მერკური 99","id":"202064862","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ქობულეთი XXI","id":"247002032","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს  ქინგს ინნ","id":"404515609","country":"საქართველო","share":"89,08"},{"type":"შვილობილი საწარმო","name":"შპს სოლომონი 1805","id":"240418909","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს კალა ინვესტი","id":"202337408","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს დისტრიბუცია 2024","id":"246954176","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ცენტურიონი","id":"247000560","country":"საქართველო","share":"100,00"}],"audit_firms":{"2023":"შპს ფრაისუოთერჰაუსკუპერს საქართველო","2022":"შპს ფრაისუოთერჰაუსკუპერს საქართველო","2021":"შპს ფრაისუოთერჰაუსკუპერს საქართველო"}},{"code":"204968730","name":"სს იბერია რეფრეშმენტსი","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა","registration_date":"2001-08-29","address":null,"phone":null,"web":null,"directors":[{"PersonalNumber":"19770619-01111","FirstName":"ტარას","LastName":"ალექსიიჩუკი","PersonType":null}],"govern_boards":["რაიმონდ ჯონ პოლ ჰეიზლი, LT2097013; LT0458720 /ირლანდია/","სუჰაილ ა.დ. ზაინელდეენ, 01993000133","არამ პეტროსიანი, სომხეთი, 75 3968509; BA3430366 /რუსეთის ფედერაცია/","ალმა ლუის დონოჰოე, 123463411 /დიდი ბრიტანეთისა და ჩრდილოეთ ირლანდიის გაერთიანებული სამეფო/"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"Elsu Inc.","id":"1574854","country":"დიდი ბრიტანეთი","share":""}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს კორა კონსალტინგი","2021":"შპს დელოიტი და ტუში"}},{"code":"205169066","name":"სს ენერგო - პრო ჯორჯია","form":"სააქციო საზოგადოება","activity":"ელექტროენერგიის, აირის, ორთქლის და კონდიცირებული ჰაერის მიწოდება","registration_date":"2006-07-31","address":"საქართველო, თბილისი, ვაკე-საბურთალოს რაიონი, ზურაბ ანჯაფარიძისქ., N19","phone":"032 2471 707","web":"http://www.energo-pro.ge","directors":[{"PersonalNumber":"60003000784","FirstName":"გრიგოლი","LastName":"მამისეიშვილი","PersonType":null}],"govern_boards":["პეტრ ტესარი, 770716/3530 /ჩეხეთის რესპუბლიკა/","პლამენ სტოიანოვი სტეფანოვი, 8202272205, 385679536 /ბულგარეთი/","ქრისტიან ედვარდ ბლეჩფორდ, 46142383, 740702/9905 /ჩეხეთის რესპუბლიკა/"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"სს ენერგო-პრო ჯორჯია ჰოლდინგი","id":"405456082","country":"საქართველო","share":""}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს იუაი","2021":"შპს იუაი"}},{"code":"400194222","name":"სს არგო","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა","registration_date":"2017-01-20","address":"","phone":"","web":"","directors":[{"PersonalNumber":"01008002059","FirstName":"ვასილი","LastName":"სულხანიშვილი","PersonType":null}],"govern_boards":["ჯორჯ ამზაშვილი, 506159204 /აშშ/","გიორგი ახალაძე, 01010004568","ინა სულხანიშვილი, 01008002459"],"report_years":["2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[],"audit_firms":{"2023":"შპს ფი ქეი ეფ ჯორჯია (სს ფი ქეი ეფ კაიზენი)","2022":"სს ფი ქეი ეფ კაიზენი","2021":"სს ფი ქეი ეფ კაიზენი"}},{"code":"206343991","name":"სს გუდვილი","form":"სააქციო საზოგადოება","activity":"დამამუშავებელი მრეწველობა; საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი; უძრავ ქონებასთან დაკავშირებული საქმიანობები","registration_date":"2009-09-03","address":null,"phone":null,"web":null,"directors":[{"PersonalNumber":null,"FirstName":null,"LastName":null,"PersonType":"რეაბილიტაციის მმართველი"},{"PersonalNumber":"01024027875","FirstName":"გიორგი","LastName":"ხაბაშვილი","PersonType":"გენერალური დირექტორი"}],"govern_boards":["გიორგი შევარდნაძე, 01007001423","დავით გლუნჩაძე, 01008003491","ირინე ქოსაშვილი, 01021007016"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"შვილობილი საწარმო","name":"შპს ჰიპერმარკეტი საბურთალო","id":"405500079","country":"საქართველო","share":"70,00"}],"audit_firms":{"2023":"შპს ეკოვის ეი-თი-ეი ფინანსები","2022":"შპს ეკოვის ეი-თი-ეი ფინანსები","2021":"შპს ეკოვის ეი-თი-ეი ფინანსები"}},{"code":"405670000","name":"სს ევექსი","form":"სააქციო საზოგადოება","activity":"ჯანდაცვა და სოციალური მომსახურების საქმიანობები","registration_date":"2024-01-11","address":"","phone":"","web":"","directors":[{"PersonalNumber":"01005003603","FirstName":"გიორგი","LastName":"გორდაძე","PersonType":null}],"govern_boards":[],"report_years":["2024"],"subsidiaries":[],"audit_firms":{}},{"code":"202268928","name":"სს ელიტ ელექტრონიქსი","form":"სააქციო საზოგადოება","activity":"საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი","registration_date":"2005-06-09","address":"ქავთარაძის #3","phone":"599493463","web":"www.ee.ge","directors":[{"PersonalNumber":"48001000724","FirstName":"ლადო","LastName":"ჯობავა","PersonType":null}],"govern_boards":["დორი გროსმანი, 0-3730634-7, 37538958 /ისრაელი/","ქეთევან ქვარცხავა, 01030018803","რუსუდან ჭკუასელი, 01017027460"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"შპს ბრიმაგ დიჯითალ ეიჯ","id":"511786378","country":"ისრაელი","share":""},{"type":"შვილობილი საწარმო","name":"შპს ელიტელი","id":"404905849","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ელიტ ტექსტილი","id":"205169039","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ელიტ სერვისი","id":"404858864","country":"საქართველო","share":"90,00"},{"type":"შვილობილი საწარმო","name":"შპს მარკეტპლეისი","id":"405496379","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Elit.EO LLC","id":"1406293461","country":"აზერბაიჯანი","share":"65,00"}],"audit_firms":{"2023":"შპს ბეიკერ ტილი ჯორჯია","2022":"შპს ბეიკერ ტილი ჯორჯია","2021":"შპს ბეიკერ ტილი ჯორჯია"}},{"code":"405103034","name":"სს ბიჯეო ჯგუფი","form":"სააქციო საზოგადოება","activity":"საფინანსო და სადაზღვევო საქმიანობები","registration_date":"2015-05-28","address":"ი. გაგარინის 29ა, თბილისი, საქართველო","phone":null,"web":null,"directors":[{"PersonalNumber":"01031000774","FirstName":"არჩილ","LastName":"გაჩეჩილაძე","PersonType":"გენერალური დირექტორი"}],"govern_boards":[],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"Bank of Georgia Group PLC","id":"10917019","country":"დიდი ბრიტანეთი","share":""},{"type":"შვილობილი საწარმო","name":"სს იდეა","id":"404571263","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს საქართველოს ბანკი","id":"204378869","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ბიჯი ფაინანშიალ","id":"402018918","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს გალტ ენდ თაგარტი","id":"211359206","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"წარმომადგენლობა სს ბიჯი კაპიტალი აზერბაიჯანში","id":"1303493141","country":"აზერბაიჯანი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"გალტ ენდ თაგარტ ჰოლდინგ ლიმიტედი","id":"12179498L","country":"კვიპროსი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ბიჯი კაპიტალი (ბელარუსია)","id":"190981842","country":"ბელარუსი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს დიჯითალ არეა","id":"402096227","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს იზი ბოქსი","id":"405428755","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ექსტრა არეა","id":"402129763","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს სოლო","id":"402013726","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს საქართველოს ფასიანი ქაღალდების გაერთიანებული რეგისტრატორი","id":"205156374","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ექსპრეს ტექნოლოჯიზ","id":"204542003","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ჯორჯიან ქარდი","id":"204396377","country":"საქართველო","share":"99,41"},{"type":"შვილობილი საწარმო","name":"Bank of Georgia Representative Office UK Limited","id":"623 85188","country":"დიდი ბრიტანეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"ფონდი სიცოცხლის ხე","id":"204559432","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Representative Office of JSC Bank of Georgia in Turkey","id":"4840865165","country":"თურქეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Bank of Georgia Representative Office Hungary","id":"23976364-1-41","country":"უნგრეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Georgia Financial Investments","id":"514240076","country":"ისრაელი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Benderlock Investments Limited","id":"12249591H","country":"კვიპროსი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Belarusky Narodny Bank","id":"100513485","country":"ბელარუსი","share":"99,98"},{"type":"შვილობილი საწარმო","name":"BNB Leasing LLC","id":"190704129","country":"ბელარუსი","share":"99,90"},{"type":"შვილობილი საწარმო","name":"შპს საქართველოს სალიზინგო კომპანია","id":"204972155","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს პრაიმ ლიზინგი","id":"401967109","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს დაირექტ დებიტ ჯორჯია","id":"205130464","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს დიდი დიღმის კვლევითი ცენტრი","id":"202383599","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს მეტრო სერვის +","id":"205150352","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"OPTIMO, FE LLC","id":"310750122","country":"უზბეკეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს დელივერი","id":"405243838","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ელ.ბილეთები","id":"205268869","country":"საქართველო","share":"81,38"},{"type":"შვილობილი საწარმო","name":"შპს თიქეთინგ არეა","id":"405633747","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს საქართველოს ბანკის სასწავლო უნივერსიტეტი","id":"405014979","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს  ოპტიმო  გლობალ","id":"405576372","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ბი ოუ ჯი აქტივების მართვა","id":"404696389","country":"საქართველო","share":"100,00"}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს იუაი","2021":"შპს იუაი"}},{"code":"201991229","name":"სს გეფა","form":"სააქციო საზოგადოება","activity":"საბითუმო და საცალო ვაჭრობა; ავტომობილების და მოტოციკლების რემონტი; ჯანდაცვა და სოციალური მომსახურების საქმიანობები","registration_date":"1995-10-19","address":"ბელიაშვილის 42","phone":"322911900","web":null,"directors":[{"PersonalNumber":"01009011104","FirstName":"თორნიკე","LastName":"ნიკოლაიშვილი","PersonType":null}],"govern_boards":["გიორგი ალფაიძე, 60001032791","ლევანი დადიანი, 01022005562","მიხეილ აბრამიძე, 01002008161","გიორგი კეთილაძე, 01024060426"],"report_years":["2017","2018","2019","2020","2021","2022","2023","2024"],"subsidiaries":[{"type":"მშობელი საწარმო","name":"სს საქართველოს ჯანდაცვის ჯგუფი","id":"405098399","country":"საქართველო","share":""},{"type":"შვილობილი საწარმო","name":"შპს ეი-ბი-სი ფარმალოჯისტიკსი","id":"205022580","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს ივერთა","id":"402179432","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს ევროლაინი","id":"402025036","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"სს საქართველოს ლოჯისტიკა","id":"402194665","country":"საქართველო","share":"100,00"},{"type":"შვილობილი საწარმო","name":"ABC Pharmacy LLC","id":"00129804","country":"სომხეთი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"Azpha LLC","id":"1805522941","country":"აზერბაიჯანი","share":"100,00"},{"type":"შვილობილი საწარმო","name":"შპს \u201EAKG AVELIN QAN DEGHATUN\u201C","id":"02810396","country":"აზერბაიჯანი","share":"100,00"}],"audit_firms":{"2023":"შპს იუაი","2022":"შპს იუაი","2021":"შპს იუაი"}}],"statistics":{"2024":{"total_enterprises":83249,"categories":{"სდპ":{"published":135,"in_progress":1},"I":{"published":177,"in_progress":0},"II":{"published":778,"in_progress":12},"III":{"published":5646,"in_progress":55},"IV":{"published":76403,"in_progress":41},"I ჯგუფი":{"published":151,"in_progress":1},"II ჯგუფი":{"published":250,"in_progress":7},"III ჯგუფი":{"published":414,"in_progress":0},"IV ჯგუფი":{"published":252,"in_progress":6}}},"2023":{"total_enterprises":84479,"categories":{"სდპ":{"published":132,"in_progress":0},"I":{"published":163,"in_progress":1},"II":{"published":767,"in_progress":3},"III":{"published":5439,"in_progress":26},"IV":{"published":77914,"in_progress":34},"I ჯგუფი":{"published":149,"in_progress":1},"II ჯგუფი":{"published":253,"in_progress":0},"III ჯგუფი":{"published":404,"in_progress":1},"IV ჯგუფი":{"published":235,"in_progress":1}}},"2022":{"total_enterprises":82686,"categories":{"სდპ":{"published":130,"in_progress":0},"I":{"published":147,"in_progress":1},"II":{"published":690,"in_progress":6},"III":{"published":5021,"in_progress":48},"IV":{"published":76613,"in_progress":38},"I ჯგუფი":{"published":139,"in_progress":1},"II ჯგუფი":{"published":226,"in_progress":4},"III ჯგუფი":{"published":391,"in_progress":2},"IV ჯგუფი":{"published":215,"in_progress":2}}},"2021":{"total_enterprises":80644,"categories":{"სდპ":{"published":131,"in_progress":0},"I":{"published":123,"in_progress":0},"II":{"published":617,"in_progress":5},"III":{"published":4567,"in_progress":39},"IV":{"published":75127,"in_progress":35},"I ჯგუფი":{"published":126,"in_progress":0},"II ჯგუფი":{"published":215,"in_progress":0},"III ჯგუფი":{"published":353,"in_progress":1},"IV ჯგუფი":{"published":243,"in_progress":2}}},"2020":{"total_enterprises":70969,"categories":{"სდპ":{"published":137,"in_progress":1},"I":{"published":111,"in_progress":0},"II":{"published":573,"in_progress":1},"III":{"published":4347,"in_progress":26},"IV":{"published":65710,"in_progress":63},"I ჯგუფი":{"published":115,"in_progress":0},"II ჯგუფი":{"published":212,"in_progress":1},"III ჯგუფი":{"published":328,"in_progress":1},"IV ჯგუფი":{"published":227,"in_progress":6}}},"2019":{"total_enterprises":14442,"categories":{"სდპ":{"published":94,"in_progress":2},"I":{"published":117,"in_progress":1},"II":{"published":539,"in_progress":4},"III":{"published":3762,"in_progress":60},"IV":{"published":9839,"in_progress":25},"I ჯგუფი":{"published":105,"in_progress":1},"II ჯგუფი":{"published":188,"in_progress":0},"III ჯგუფი":{"published":277,"in_progress":2},"IV ჯგუფი":{"published":46,"in_progress":1}}}}};
+
+// ===== SUMMARY STATS =====
+const years = Object.keys(DATA.statistics).sort();
+const latest = DATA.statistics['2024'];
+const totalReports2024 = Object.values(latest.categories).reduce((s,c) => s + c.published + c.in_progress, 0);
+const totalSubsidiaries = DATA.companies.reduce((s,c) => s + c.subsidiaries.filter(x => x.type === 'შვილობილი საწარმო').length, 0);
+
+document.getElementById('statsRow').innerHTML = `
+  <div class="stat-card">
+    <div class="stat-icon blue"><i class="fas fa-building"></i></div>
+    <div class="stat-value">${DATA.companies.length}</div>
+    <div class="stat-label">კომპანიები მონაცემთა ბაზაში</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green"><i class="fas fa-file-alt"></i></div>
+    <div class="stat-value">${latest.total_enterprises.toLocaleString()}</div>
+    <div class="stat-label">საწარმოები 2024</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon orange"><i class="fas fa-chart-bar"></i></div>
+    <div class="stat-value">${totalReports2024.toLocaleString()}</div>
+    <div class="stat-label">ანგარიშგებები 2024</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon purple"><i class="fas fa-code-branch"></i></div>
+    <div class="stat-value">${totalSubsidiaries}</div>
+    <div class="stat-label">შვილობილი საწარმოები</div>
+  </div>
+`;
+
+// ===== CHART DEFAULTS =====
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(51,65,85,0.5)';
+Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+
+// ===== LINE CHART: Total enterprises by year =====
+new Chart(document.getElementById('lineChart'), {
+  type: 'line',
+  data: {
+    labels: years,
+    datasets: [{
+      label: 'საწარმოების რაოდენობა',
+      data: years.map(y => DATA.statistics[y].total_enterprises),
+      borderColor: '#3B82F6',
+      backgroundColor: 'rgba(59,130,246,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 5,
+      pointBackgroundColor: '#3B82F6',
+      pointBorderColor: '#fff',
+      pointBorderWidth: 2,
+      pointHoverRadius: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.parsed.y.toLocaleString() + ' საწარმო'
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: false,
+        ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+      }
+    }
+  }
+});
+
+// ===== DOUGHNUT CHART: Category distribution 2024 =====
+const mainCats = ['სდპ','I','II','III','IV'];
+const dColors = ['#3B82F6','#22c55e','#f59e0b','#a855f7','#ef4444'];
+new Chart(document.getElementById('doughnutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: mainCats,
+    datasets: [{
+      data: mainCats.map(c => latest.categories[c].published),
+      backgroundColor: dColors,
+      borderColor: '#1e293b',
+      borderWidth: 3,
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '55%',
+    plugins: {
+      legend: { position: 'right', labels: { padding: 16, usePointStyle: true, pointStyle: 'circle' } },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+            const pct = ((ctx.parsed / total) * 100).toFixed(1);
+            return `${ctx.label}: ${ctx.parsed.toLocaleString()} (${pct}%)`;
+          }
+        }
+      }
+    }
+  }
+});
+
+// ===== STACKED BAR: Reports by category per year =====
+new Chart(document.getElementById('stackedBar'), {
+  type: 'bar',
+  data: {
+    labels: years,
+    datasets: mainCats.map((cat, i) => ({
+      label: cat,
+      data: years.map(y => DATA.statistics[y].categories[cat].published),
+      backgroundColor: dColors[i],
+      borderRadius: 3
+    }))
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { labels: { usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString()}`
+        }
+      }
+    },
+    scales: {
+      x: { stacked: true },
+      y: {
+        stacked: true,
+        ticks: { callback: v => (v/1000).toFixed(0) + 'K' }
+      }
+    }
+  }
+});
+
+// ===== COMPANY CARDS =====
+const grid = document.getElementById('companyGrid');
+DATA.companies.forEach(c => {
+  const subs = c.subsidiaries.filter(s => s.type === 'შვილობილი საწარმო');
+  const parents = c.subsidiaries.filter(s => s.type === 'მშობელი საწარმო');
+  const directors = c.directors.filter(d => d.FirstName);
+  const auditYears = Object.keys(c.audit_firms).sort().reverse();
+
+  const card = document.createElement('div');
+  card.className = 'company-card';
+  card.onclick = () => card.classList.toggle('expanded');
+
+  card.innerHTML = `
+    <div class="cc-header">
+      <div class="cc-name">${c.name}</div>
+      <span class="cc-badge">${c.report_years.length} წელი</span>
+    </div>
+    <div class="cc-meta">
+      <span><i class="fas fa-briefcase"></i>${c.activity ? c.activity.substring(0,60) + (c.activity.length>60?'...':'') : 'N/A'}</span>
+      <span><i class="fas fa-calendar"></i>${c.registration_date || 'N/A'}</span>
+      ${c.web ? `<span><i class="fas fa-globe"></i><a href="${c.web.startsWith('http')?c.web:'http://'+c.web}" target="_blank">${c.web}</a></span>` : ''}
+      ${c.phone ? `<span><i class="fas fa-phone"></i>${c.phone}</span>` : ''}
+    </div>
+    <div class="cc-expand-hint">
+      <span class="hint-closed"><i class="fas fa-chevron-down"></i> დეტალები</span>
+      <span class="hint-open"><i class="fas fa-chevron-up"></i> დახურვა</span>
+    </div>
+    <div class="cc-details">
+      ${directors.length ? `<div class="detail-group"><h4><i class="fas fa-user-tie"></i> დირექტორები</h4><ul>${directors.map(d => `<li>${d.FirstName} ${d.LastName}${d.PersonType ? ' ('+d.PersonType+')':''}</li>`).join('')}</ul></div>` : ''}
+      ${c.govern_boards.length ? `<div class="detail-group"><h4><i class="fas fa-users"></i> სამეთვალყურეო საბჭო</h4><ul>${c.govern_boards.map(g => `<li>${g.split(',')[0]}</li>`).join('')}</ul></div>` : ''}
+      ${subs.length ? `<div class="detail-group"><h4><i class="fas fa-code-branch"></i> შვილობილი საწარმოები (${subs.length})</h4><ul>${subs.map(s => `<li>${s.name} — ${s.country}${s.share ? ', '+s.share+'%':''}</li>`).join('')}</ul></div>` : ''}
+      ${parents.length ? `<div class="detail-group"><h4><i class="fas fa-crown"></i> მშობელი საწარმო</h4><ul>${parents.map(p => `<li>${p.name} (${p.country})</li>`).join('')}</ul></div>` : ''}
+      ${auditYears.length ? `<div class="detail-group"><h4><i class="fas fa-clipboard-check"></i> აუდიტი</h4><ul>${auditYears.map(y => `<li>${y}: ${c.audit_firms[y]}</li>`).join('')}</ul></div>` : ''}
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+// ===== SUBSIDIARIES BAR CHART =====
+const compNames = DATA.companies.map(c => c.name.replace('სს ',''));
+const subCounts = DATA.companies.map(c => c.subsidiaries.filter(s => s.type === 'შვილობილი საწარმო').length);
+new Chart(document.getElementById('subsidBar'), {
+  type: 'bar',
+  data: {
+    labels: compNames,
+    datasets: [{
+      label: 'შვილობილი',
+      data: subCounts,
+      backgroundColor: subCounts.map(v => v > 15 ? '#22c55e' : v > 5 ? '#3B82F6' : v > 0 ? '#f59e0b' : '#475569'),
+      borderRadius: 6,
+      maxBarThickness: 50
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ctx.parsed.x + ' შვილობილი საწარმო' } }
+    },
+    scales: {
+      x: { beginAtZero: true, ticks: { stepSize: 5 } }
+    }
+  }
+});
+
+// ===== SUBSIDIARIES TABLE =====
+let tableHtml = '<table><thead><tr><th>მშობელი კომპანია</th><th>შვილობილი</th><th>ქვეყანა</th><th>წილი</th></tr></thead><tbody>';
+DATA.companies.forEach(c => {
+  const subs = c.subsidiaries.filter(s => s.type === 'შვილობილი საწარმო');
+  subs.forEach((s, i) => {
+    tableHtml += `<tr><td>${i === 0 ? c.name : ''}</td><td>${s.name}</td><td>${s.country}</td><td>${s.share ? s.share+'%' : '-'}</td></tr>`;
+  });
+});
+tableHtml += '</tbody></table>';
+document.getElementById('subsidTable').innerHTML = tableHtml;
+
+// ===== AUDIT TABLE =====
+const auditYearsAll = ['2021','2022','2023'];
+let auditHtml = '<table><thead><tr><th>კომპანია</th>';
+auditYearsAll.forEach(y => auditHtml += `<th>${y}</th>`);
+auditHtml += '</tr></thead><tbody>';
+DATA.companies.forEach(c => {
+  if (Object.keys(c.audit_firms).length === 0) return;
+  auditHtml += `<tr><td style="color:#fff;font-weight:600">${c.name}</td>`;
+  auditYearsAll.forEach(y => {
+    auditHtml += `<td>${c.audit_firms[y] || '<span style="color:#475569">-</span>'}</td>`;
+  });
+  auditHtml += '</tr>';
+});
+auditHtml += '</tbody></table>';
+document.getElementById('auditTable').innerHTML = auditHtml;
+
+// ===== HEATMAP =====
+const hmYears = ['2017','2018','2019','2020','2021','2022','2023','2024'];
+const cols = hmYears.length + 1;
+const hm = document.getElementById('heatmap');
+let hmHtml = `<div class="heatmap-grid" style="grid-template-columns: 200px repeat(${hmYears.length}, 1fr)">`;
+// header row
+hmHtml += '<div class="heatmap-cell hm-header"></div>';
+hmYears.forEach(y => hmHtml += `<div class="heatmap-cell hm-header">${y}</div>`);
+// company rows
+DATA.companies.forEach(c => {
+  const shortName = c.name.length > 28 ? c.name.substring(0,28)+'...' : c.name;
+  hmHtml += `<div class="heatmap-cell hm-company" title="${c.name}">${shortName}</div>`;
+  hmYears.forEach(y => {
+    const has = c.report_years.includes(y);
+    hmHtml += `<div class="heatmap-cell ${has ? 'hm-yes' : 'hm-no'}">${has ? '<i class="fas fa-check"></i>' : '-'}</div>`;
+  });
+});
+hmHtml += '</div>';
+hm.innerHTML = hmHtml;
+</script>
+</body>
+</html>
