@@ -108,13 +108,119 @@ tbody tr.clickable{cursor:pointer}
 @media(max-width:480px){.stat-grid{grid-template-columns:1fr}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 .animate-in,.chart-box,.stat-card{animation:fadeIn .5s ease both}
+
+/* Paywall & Auth */
+.paywall-overlay{position:fixed;inset:0;background:rgba(15,23,42,.97);z-index:500;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .4s}
+.paywall-overlay.hidden{opacity:0;pointer-events:none}
+.paywall-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;max-width:480px;width:90%;text-align:center;animation:fadeIn .5s ease}
+.paywall-card h2{font-size:1.6rem;font-weight:800;margin-bottom:.5rem;background:linear-gradient(135deg,var(--accent2),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.paywall-card .pw-sub{color:var(--text2);font-size:.9rem;margin-bottom:2rem;line-height:1.6}
+.paywall-card .pw-features{text-align:left;margin-bottom:2rem}
+.paywall-card .pw-features li{font-size:.85rem;color:var(--text);padding:.4rem 0;list-style:none;display:flex;align-items:center;gap:.5rem}
+.paywall-card .pw-features li i{color:var(--green);font-size:.75rem}
+.pw-price{font-size:2rem;font-weight:800;color:#fff;margin-bottom:.25rem}
+.pw-price-sub{font-size:.8rem;color:var(--text2);margin-bottom:1.5rem}
+.pw-divider{display:flex;align-items:center;gap:.75rem;margin:1.5rem 0;color:var(--text2);font-size:.78rem}
+.pw-divider::before,.pw-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.pw-btn{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:.8rem 1.5rem;border-radius:10px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .25s;border:none;font-family:inherit}
+.pw-btn-apple{background:#fff;color:#000;margin-bottom:.6rem}
+.pw-btn-apple:hover{background:#e5e5e5}
+.pw-btn-google{background:#4285F4;color:#fff;margin-bottom:.6rem}
+.pw-btn-google:hover{background:#3574d4}
+.pw-btn-promo{background:transparent;color:var(--accent2);border:1px solid var(--accent);margin-top:.5rem}
+.pw-btn-promo:hover{background:rgba(59,130,246,.1)}
+.promo-input-wrap{display:none;margin-top:1rem;position:relative}
+.promo-input-wrap.visible{display:flex;gap:.5rem}
+.promo-input-wrap input{flex:1;padding:.65rem 1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none}
+.promo-input-wrap input:focus{border-color:var(--accent)}
+.promo-input-wrap button{padding:.65rem 1.25rem;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.85rem;cursor:pointer;font-weight:600;white-space:nowrap}
+.promo-input-wrap button:hover{background:var(--accent2)}
+.pw-error{color:var(--red);font-size:.78rem;margin-top:.5rem;display:none}
+.pw-error.visible{display:block}
+
+/* Payment Processing Modal */
+.payment-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:600;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.payment-modal.active{opacity:1;pointer-events:auto}
+.payment-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:400px;width:90%;text-align:center}
+.payment-box .pay-icon{font-size:3rem;margin-bottom:1rem}
+.payment-box h3{margin-bottom:.5rem;font-size:1.15rem}
+.payment-box p{color:var(--text2);font-size:.85rem;margin-bottom:1.5rem}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top:3px solid var(--accent2);border-radius:50%;animation:spin 1s linear infinite;margin:1rem auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pay-success{color:var(--green);font-size:2.5rem;display:none}
+.pay-success.show{display:block;animation:fadeIn .5s ease}
+
+/* Blurred content for non-premium */
+.blurred-section{position:relative}
+.blurred-section.locked .blur-target{filter:blur(6px);pointer-events:none;user-select:none}
+.blurred-section.locked .lock-overlay{display:flex}
+.lock-overlay{display:none;position:absolute;inset:0;align-items:center;justify-content:center;z-index:10;background:rgba(15,23,42,.4);border-radius:var(--radius)}
+.lock-badge{background:var(--card);border:1px solid var(--accent);border-radius:12px;padding:1rem 2rem;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.lock-badge:hover{transform:scale(1.03);box-shadow:0 0 30px rgba(59,130,246,.2)}
+.lock-badge i{color:var(--accent2);font-size:1.5rem;margin-bottom:.5rem;display:block}
+.lock-badge span{font-size:.85rem;font-weight:600;color:var(--text)}
+
+/* Company Search Page */
+.search-hero{text-align:center;padding:2rem 0 1.5rem}
+.search-hero h2{font-size:1.5rem;font-weight:700;margin-bottom:.75rem}
+.search-hero p{color:var(--text2);font-size:.9rem}
+.company-search-bar{max-width:600px;margin:1.5rem auto;position:relative}
+.company-search-bar input{width:100%;padding:.85rem 1rem .85rem 2.75rem;background:var(--card);border:2px solid var(--border);border-radius:12px;color:var(--text);font-size:1rem;outline:none;transition:border-color .2s}
+.company-search-bar input:focus{border-color:var(--accent)}
+.company-search-bar i{position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--text2)}
+.search-results{max-width:800px;margin:0 auto}
+.search-result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1rem 1.25rem;margin-bottom:.6rem;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
+.search-result-card:hover{border-color:var(--accent);background:var(--card2);transform:translateX(4px)}
+.sr-name{font-weight:600;font-size:.9rem;color:#fff;margin-bottom:.2rem}
+.sr-code{font-size:.75rem;color:var(--text2)}
+.sr-metrics{display:flex;gap:1.5rem;font-size:.78rem;color:var(--text2)}
+.sr-metrics .val{font-weight:600;color:var(--text)}
+.search-count{font-size:.8rem;color:var(--text2);margin-bottom:.75rem}
 </style>
 </head>
 <body>
+<!-- PAYWALL -->
+<div class="paywall-overlay" id="paywall">
+<div class="paywall-card">
+<h2><i class="fas fa-chart-line"></i> FinDash PRO</h2>
+<p class="pw-sub">საქართველოს 1,018 კომპანიის ფინანსური ანალიტიკა<br>ბალანსი • მოგება-ზარალი • სექტორული შედარება</p>
+<ul class="pw-features">
+<li><i class="fas fa-check-circle"></i> 1,018 კომპანიის სრული ფინანსური მონაცემები</li>
+<li><i class="fas fa-check-circle"></i> კომპანიის ძიება და დეტალური ანალიზი</li>
+<li><i class="fas fa-check-circle"></i> სექტორული შედარება - თქვენი პოზიცია ბაზარზე</li>
+<li><i class="fas fa-check-circle"></i> საქსტატის ეროვნული სტატისტიკა</li>
+<li><i class="fas fa-check-circle"></i> ინტერაქტიული გრაფიკები და ექსპორტი</li>
+</ul>
+<div class="pw-price">₾ 9.99 <span style="font-size:.85rem;font-weight:400;color:var(--text2)">/ თვე</span></div>
+<p class="pw-price-sub">7 დღე უფასო საცდელი პერიოდი</p>
+<button class="pw-btn pw-btn-apple" onclick="startPayment('apple')"><i class="fab fa-apple" style="font-size:1.2rem"></i> Pay with Apple Pay</button>
+<button class="pw-btn pw-btn-google" onclick="startPayment('google')"><i class="fab fa-google" style="font-size:1rem"></i> Pay with Google Pay</button>
+<div class="pw-divider">ან</div>
+<button class="pw-btn pw-btn-promo" onclick="togglePromo()"><i class="fas fa-tag"></i> პრომო კოდი</button>
+<div class="promo-input-wrap" id="promoWrap">
+<input type="text" id="promoInput" placeholder="შეიყვანეთ პრომო კოდი..." onkeydown="if(event.key==='Enter')applyPromo()">
+<button onclick="applyPromo()">გააქტიურება</button>
+</div>
+<p class="pw-error" id="promoError">არასწორი პრომო კოდი</p>
+</div>
+</div>
+
+<!-- Payment Processing Modal -->
+<div class="payment-modal" id="paymentModal">
+<div class="payment-box">
+<div class="pay-icon" id="payIcon"></div>
+<h3 id="payTitle">გადახდის დამუშავება...</h3>
+<p id="payText">გთხოვთ დაელოდოთ</p>
+<div class="spinner" id="paySpinner"></div>
+<div class="pay-success" id="paySuccess"><i class="fas fa-check-circle"></i></div>
+</div>
+</div>
+
 <nav class="nav">
 <div class="nav-brand"><i class="fas fa-chart-line"></i> FinDash</div>
 <div class="nav-links">
-<a href="#overview" class="active">მიმოხილვა</a>
+<a href="#search" class="active">ძიება</a>
+<a href="#overview">მიმოხილვა</a>
 <a href="#financial">ფინანსური</a>
 <a href="#geostat">საქსტატი</a>
 <a href="#reportal">Reportal.ge</a>
@@ -131,6 +237,50 @@ tbody tr.clickable{cursor:pointer}
 <div class="detail-body" id="detailBody"></div>
 </div>
 <div class="container">
+<!-- Company Search & Compare Section -->
+<section class="section" id="search">
+<div class="search-hero">
+<h2><i class="fas fa-search" style="color:var(--accent2)"></i> კომპანიის ძიება და შედარება</h2>
+<p>მოძებნეთ კომპანია სახელით ან საიდენტიფიკაციო კოდით, ნახეთ ფინანსური დეტალები და შეადარეთ კონკურენტებს</p>
+</div>
+<div class="company-search-bar">
+<i class="fas fa-search"></i>
+<input type="text" id="mainSearch" placeholder="კომპანიის სახელი ან საიდენტიფიკაციო კოდი..." oninput="mainSearchHandler()">
+</div>
+<div class="search-count" id="searchCount"></div>
+<div class="search-results" id="searchResults"></div>
+
+<!-- Company Comparison Panel (shown after selecting a company) -->
+<div id="compareSection" style="display:none;margin-top:2rem">
+<div class="chart-box" style="margin-bottom:1rem">
+<h3 id="compareTitle" style="font-size:1.05rem;color:var(--accent2)"></h3>
+<p id="compareSubtitle" style="font-size:.8rem;color:var(--text2);margin-bottom:1rem"></p>
+<!-- Position indicator -->
+<div id="positionCard" style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem"></div>
+<!-- Comparison charts -->
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem" id="compareChartsGrid">
+<div><canvas id="compareAssetsChart"></canvas></div>
+<div><canvas id="compareRevenueChart"></canvas></div>
+<div><canvas id="compareProfitChart"></canvas></div>
+<div><canvas id="compareMarginChart"></canvas></div>
+</div>
+</div>
+<!-- Peer table -->
+<div class="blurred-section" id="peerTableSection">
+<div class="blur-target">
+<div class="table-wrap">
+<table><thead><tr>
+<th>#</th><th>კომპანია</th><th>აქტივები</th><th>შემოსავალი</th><th>მთ. მოგება</th><th>წმ. მოგება</th><th>მარჟა %</th>
+</tr></thead><tbody id="peerTableBody"></tbody></table>
+</div>
+</div>
+<div class="lock-overlay" onclick="document.getElementById('paywall').classList.remove('hidden')">
+<div class="lock-badge"><i class="fas fa-lock"></i><span>სრული სიის სანახავად<br>გააქტიურეთ PRO</span></div>
+</div>
+</div>
+</div>
+</section>
+
 <section class="section" id="overview">
 <h2 class="section-title"><i class="fas fa-tachometer-alt"></i> მიმოხილვა</h2>
 <div class="stat-grid" id="overviewStats"></div>
@@ -138,7 +288,8 @@ tbody tr.clickable{cursor:pointer}
 <section class="section" id="financial">
 <h2 class="section-title"><i class="fas fa-chart-bar"></i> ფინანსური მიმოხილვა</h2>
 <div class="chart-grid" id="finCharts"></div>
-<div style="margin-top:1.5rem">
+<div class="blurred-section" id="rankingBlur" style="margin-top:1.5rem">
+<div class="blur-target">
 <div class="controls">
 <div class="search-box"><i class="fas fa-search"></i><input type="text" id="companySearch" placeholder="კომპანიის ძიება..." oninput="filterCompanies()"></div>
 <select class="sort-select" id="rankingMode" onchange="renderRanking()">
@@ -149,6 +300,10 @@ tbody tr.clickable{cursor:pointer}
 </select>
 </div>
 <div class="table-wrap"><table id="rankingTable"><thead id="rankingHead"></thead><tbody id="rankingBody"></tbody></table></div>
+</div>
+<div class="lock-overlay" onclick="document.getElementById('paywall').classList.remove('hidden')">
+<div class="lock-badge"><i class="fas fa-lock"></i><span>სრული რეიტინგის სანახავად<br>გააქტიურეთ PRO</span></div>
+</div>
 </div>
 </section>
 <section class="section" id="geostat">
@@ -297,7 +452,207 @@ var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){i
 secs.forEach(function(s){obs.observe(s)});
 }
 document.querySelectorAll('.nav-links a').forEach(function(l){l.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(l.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'})})});
-document.addEventListener('DOMContentLoaded',function(){renderOverview();renderFinCharts();buildRankData();renderRanking();renderGeostat();renderReportal();renderProfiles();setupScrollSpy()});
+// ===== PREMIUM / PAYWALL =====
+var isPremium = false;
+var VALID_PROMOS = ['FINDASH2024','ITCONNECT','DEMO','FREE','GIGI'];
+
+function togglePromo(){
+  var w=document.getElementById('promoWrap');
+  w.classList.toggle('visible');
+  if(w.classList.contains('visible'))document.getElementById('promoInput').focus();
+}
+function applyPromo(){
+  var code=document.getElementById('promoInput').value.trim().toUpperCase();
+  var err=document.getElementById('promoError');
+  if(VALID_PROMOS.indexOf(code)>=0){
+    err.classList.remove('visible');
+    unlockPremium();
+  } else {
+    err.textContent='არასწორი პრომო კოდი. სცადეთ: DEMO';
+    err.classList.add('visible');
+  }
+}
+function startPayment(type){
+  var modal=document.getElementById('paymentModal');
+  var icon=document.getElementById('payIcon');
+  var title=document.getElementById('payTitle');
+  var text=document.getElementById('payText');
+  var spinner=document.getElementById('paySpinner');
+  var success=document.getElementById('paySuccess');
+  icon.innerHTML=type==='apple'?'<i class="fab fa-apple"></i>':'<i class="fab fa-google"></i>';
+  icon.style.color=type==='apple'?'#fff':'#4285F4';
+  title.textContent='გადახდის დამუშავება...';
+  text.textContent=type==='apple'?'Apple Pay - ₾9.99':'Google Pay - ₾9.99';
+  spinner.style.display='block';
+  success.classList.remove('show');
+  modal.classList.add('active');
+  // Simulate payment processing
+  setTimeout(function(){
+    spinner.style.display='none';
+    success.classList.add('show');
+    title.textContent='გადახდა წარმატებით!';
+    text.textContent='PRO ხელმისაწვდომია 30 დღით';
+    setTimeout(function(){
+      modal.classList.remove('active');
+      unlockPremium();
+    },1500);
+  },2500);
+}
+function unlockPremium(){
+  isPremium=true;
+  document.getElementById('paywall').classList.add('hidden');
+  // Unlock all blurred sections
+  document.querySelectorAll('.blurred-section').forEach(function(el){el.classList.remove('locked')});
+  // Re-render comparison if active
+  if(selectedCompanyCode) showComparison(selectedCompanyCode);
+}
+function lockSections(){
+  if(!isPremium){
+    document.querySelectorAll('.blurred-section').forEach(function(el){el.classList.add('locked')});
+  }
+}
+
+// ===== COMPANY SEARCH =====
+var searchDebounce=null;
+var selectedCompanyCode=null;
+var compareCharts=[];
+
+function mainSearchHandler(){
+  clearTimeout(searchDebounce);
+  searchDebounce=setTimeout(doMainSearch,200);
+}
+function doMainSearch(){
+  var q=document.getElementById('mainSearch').value.trim().toLowerCase();
+  var results=document.getElementById('searchResults');
+  var count=document.getElementById('searchCount');
+  if(q.length<2){results.innerHTML='';count.textContent='';return}
+  // Search in FIN index (all 1018 companies)
+  var matches=FIN.idx.filter(function(c){
+    return c.n.toLowerCase().indexOf(q)>=0 || c.c.indexOf(q)>=0;
+  }).slice(0,50);
+  count.textContent=matches.length>0?matches.length+' კომპანია ნაპოვნია':'ვერ მოიძებნა';
+  results.innerHTML=matches.map(function(c){
+    var rev=c.rev||0; var ta=c.ta||0;
+    return '<div class="search-result-card" onclick="selectCompany(\''+c.c+'\')">'+
+      '<div><div class="sr-name">'+c.n+'</div><div class="sr-code">ID: '+c.c+'</div></div>'+
+      '<div class="sr-metrics">'+
+      '<div>აქტივები: <span class="val">'+fmtShort(ta)+'</span></div>'+
+      '<div>შემოსავალი: <span class="val">'+fmtShort(rev)+'</span></div>'+
+      '</div></div>';
+  }).join('');
+}
+
+function selectCompany(code){
+  selectedCompanyCode=code;
+  // Find full data
+  var comp=FIN.c.find(function(c){return c.c===code});
+  if(!comp){
+    // Only in index, limited data
+    var idx=FIN.idx.find(function(c){return c.c===code});
+    if(idx) openDetail(code);
+    return;
+  }
+  openDetail(code);
+  showComparison(code);
+}
+
+function showComparison(code){
+  var comp=FIN.c.find(function(c){return c.c===code});
+  if(!comp)return;
+  var section=document.getElementById('compareSection');
+  section.style.display='block';
+  var f24=comp.y['2024']||{};
+  var myRev=compRev(f24);
+  var myAssets=f24.ta||0;
+
+  // Find peers: similar revenue range (0.3x to 3x)
+  var peers=FIN.c.filter(function(c){
+    if(c.c===code)return false;
+    var r=compRev(c.y['2024']||{});
+    if(myRev>0)return r>=myRev*0.3 && r<=myRev*3;
+    var a=c.y['2024']?c.y['2024'].ta||0:0;
+    if(myAssets>0)return a>=myAssets*0.3 && a<=myAssets*3;
+    return false;
+  }).slice(0,30);
+
+  // Sort peers by revenue
+  peers.sort(function(a,b){return compRev(b.y['2024']||{})-compRev(a.y['2024']||{})});
+
+  // Find position
+  var allSimilar=[comp].concat(peers);
+  allSimilar.sort(function(a,b){return compRev(b.y['2024']||{})-compRev(a.y['2024']||{})});
+  var posRev=allSimilar.findIndex(function(c){return c.c===code})+1;
+  allSimilar.sort(function(a,b){return (b.y['2024']||{}).ta||0 - ((a.y['2024']||{}).ta||0)});
+  var posAssets=allSimilar.findIndex(function(c){return c.c===code})+1;
+  allSimilar.sort(function(a,b){return (b.y['2024']||{}).gp||0 - ((a.y['2024']||{}).gp||0)});
+  var posProfit=allSimilar.findIndex(function(c){return c.c===code})+1;
+
+  document.getElementById('compareTitle').innerHTML='<i class="fas fa-balance-scale" style="margin-right:.5rem"></i> '+comp.n+' - პოზიცია კონკურენტებს შორის';
+  document.getElementById('compareSubtitle').textContent=peers.length+' მსგავსი ზომის კომპანიასთან შედარება (შემოსავლის ±3x დიაპაზონი)';
+
+  // Position cards
+  document.getElementById('positionCard').innerHTML=
+    '<div class="stat-card" style="flex:1;min-width:150px"><div class="label">შემოსავლით</div><div class="value">#'+posRev+'</div><div class="sub">'+(allSimilar.length)+' კომპანიიდან</div></div>'+
+    '<div class="stat-card" style="flex:1;min-width:150px"><div class="label">აქტივებით</div><div class="value">#'+posAssets+'</div><div class="sub">'+(allSimilar.length)+' კომპანიიდან</div></div>'+
+    '<div class="stat-card" style="flex:1;min-width:150px"><div class="label">მოგებით</div><div class="value">#'+posProfit+'</div><div class="sub">'+(allSimilar.length)+' კომპანიიდან</div></div>'+
+    '<div class="stat-card" style="flex:1;min-width:150px"><div class="label">თქვენი შემოსავალი</div><div class="value">'+fmtShort(myRev)+'</div><div class="sub">მთლიანი მოგება: '+fmtShort(f24.gp||0)+'</div></div>';
+
+  // Destroy old charts
+  compareCharts.forEach(function(ch){ch.destroy()});
+  compareCharts=[];
+
+  // Top 10 peers + me for charts
+  var chartPeers=peers.slice(0,9);
+  var chartAll=[comp].concat(chartPeers);
+  var labels=chartAll.map(function(c){return c.n.length>18?c.n.substring(0,18)+'..':c.n});
+  var bgColors=chartAll.map(function(c){return c.c===code?'rgba(59,130,246,.8)':'rgba(148,163,184,.4)'});
+  var borderColors=chartAll.map(function(c){return c.c===code?'#3B82F6':'#64748b'});
+
+  function mkCompareChart(canvasId,title,dataFn){
+    var cv=document.getElementById(canvasId);
+    var ctx=cv.getContext('2d');
+    cv.width=cv.parentElement.offsetWidth;
+    var ch=new Chart(ctx,{type:'bar',data:{labels:labels,datasets:[{label:title,data:chartAll.map(dataFn),backgroundColor:bgColors,borderColor:borderColors,borderWidth:1}]},options:{responsive:true,indexAxis:'y',plugins:{legend:{display:false},title:{display:true,text:title,color:'#94a3b8',font:{size:12}}},scales:{x:{ticks:{callback:function(v){return fmtShort(v)},color:'#64748b'},grid:{color:'#1e293b'}},y:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}}}});
+    compareCharts.push(ch);
+  }
+  mkCompareChart('compareAssetsChart','აქტივები 2024',function(c){return(c.y['2024']||{}).ta||0});
+  mkCompareChart('compareRevenueChart','შემოსავალი 2024',function(c){return compRev(c.y['2024']||{})});
+  mkCompareChart('compareProfitChart','მთლიანი მოგება 2024',function(c){return(c.y['2024']||{}).gp||0});
+  mkCompareChart('compareMarginChart','წმინდა მოგება 2024',function(c){return(c.y['2024']||{}).ci||0});
+
+  // Peer table (locked for non-premium users showing top 5 free, rest blurred)
+  var tableRows=allSimilar.map(function(c,i){
+    var d=c.y['2024']||{};
+    var rev=compRev(d);
+    var margin=rev>0?((d.gp||0)/rev*100).toFixed(1):'—';
+    var cls=c.c===code?' style="background:rgba(59,130,246,.12);font-weight:600"':'';
+    return '<tr class="clickable"'+cls+' onclick="openDetail(\''+c.c+'\')">'+
+      '<td class="rank-cell">'+(i+1)+'</td>'+
+      '<td><span class="company-name">'+(c.c===code?'<i class="fas fa-star" style="color:var(--yellow);margin-right:.3rem;font-size:.7rem"></i>':'')+c.n+'</span></td>'+
+      '<td>'+fmtShort(d.ta||0)+'</td>'+
+      '<td>'+fmtShort(rev)+'</td>'+
+      '<td class="'+colorCls(d.gp||0)+'">'+fmtShort(d.gp||0)+'</td>'+
+      '<td class="'+colorCls(d.ci||0)+'">'+fmtShort(d.ci||0)+'</td>'+
+      '<td>'+margin+'%</td></tr>';
+  }).join('');
+  document.getElementById('peerTableBody').innerHTML=tableRows;
+
+  // Lock if not premium
+  if(!isPremium){
+    document.getElementById('peerTableSection').classList.add('locked');
+  }
+
+  // Scroll to comparison
+  section.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  renderOverview();renderFinCharts();buildRankData();renderRanking();renderGeostat();renderReportal();renderProfiles();setupScrollSpy();
+  // Show paywall on load
+  document.getElementById('paywall').classList.remove('hidden');
+  // Lock sections
+  lockSections();
+});
 </script>
 </body>
 </html>
