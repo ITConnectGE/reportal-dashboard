@@ -282,14 +282,19 @@ tbody tr.clickable{cursor:pointer}
 </section>
 
 <section class="section" id="overview">
-<h2 class="section-title"><i class="fas fa-tachometer-alt"></i> მიმოხილვა</h2>
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem">
+<h2 class="section-title" style="margin-bottom:0" id="overviewTitle"><i class="fas fa-tachometer-alt"></i> მიმოხილვა</h2>
+<div id="filterBadge" style="display:none">
+<span style="background:var(--accent);color:#fff;font-size:.75rem;padding:.3rem .8rem;border-radius:20px;margin-right:.5rem" id="filterLabel"></span>
+<button onclick="clearCompanyFilter()" style="background:var(--card);border:1px solid var(--border);color:var(--red);font-size:.78rem;padding:.3rem .8rem;border-radius:8px;cursor:pointer"><i class="fas fa-times"></i> ფილტრის გასუფთავება</button>
+</div>
+</div>
 <div class="stat-grid" id="overviewStats"></div>
 </section>
 <section class="section" id="financial">
-<h2 class="section-title"><i class="fas fa-chart-bar"></i> ფინანსური მიმოხილვა</h2>
+<h2 class="section-title" id="finTitle"><i class="fas fa-chart-bar"></i> ფინანსური მიმოხილვა</h2>
 <div class="chart-grid" id="finCharts"></div>
-<div class="blurred-section" id="rankingBlur" style="margin-top:1.5rem">
-<div class="blur-target">
+<div style="margin-top:1.5rem">
 <div class="controls">
 <div class="search-box"><i class="fas fa-search"></i><input type="text" id="companySearch" placeholder="კომპანიის ძიება..." oninput="filterCompanies()"></div>
 <select class="sort-select" id="rankingMode" onchange="renderRanking()">
@@ -299,10 +304,13 @@ tbody tr.clickable{cursor:pointer}
 <option value="leverage">ბერკეტი</option>
 </select>
 </div>
+<div class="blurred-section" id="rankingBlur">
+<div class="blur-target">
 <div class="table-wrap"><table id="rankingTable"><thead id="rankingHead"></thead><tbody id="rankingBody"></tbody></table></div>
 </div>
 <div class="lock-overlay" onclick="document.getElementById('paywall').classList.remove('hidden')">
 <div class="lock-badge"><i class="fas fa-lock"></i><span>სრული რეიტინგის სანახავად<br>გააქტიურეთ PRO</span></div>
+</div>
 </div>
 </div>
 </section>
@@ -333,22 +341,139 @@ Chart.defaults.color='#94A3B8';Chart.defaults.borderColor='#334155';Chart.defaul
 var CC=['#3B82F6','#22C55E','#F59E0B','#EF4444','#A855F7','#06B6D4','#EC4899','#F97316','#14B8A6','#8B5CF6','#64748B','#D946EF','#0EA5E9','#84CC16'];
 function mkChart(pid,title,cfg){var box=document.createElement('div');box.className='chart-box';var h=document.createElement('h3');h.textContent=title;var cv=document.createElement('canvas');box.appendChild(h);box.appendChild(cv);document.getElementById(pid).appendChild(box);return new Chart(cv,cfg)}
 
+var activePeerFilter=null; // {code,name,peers:[]}
+var finChartInstances=[];
+
+function getPeerGroup(code){
+  var comp=FIN.c.find(function(c){return c.c===code});
+  if(!comp)return null;
+  var f24=comp.y['2024']||{};
+  var myRev=compRev(f24);
+  var myAssets=f24.ta||0;
+  var peers=FIN.c.filter(function(c){
+    if(c.c===code)return false;
+    var d=c.y['2024']||{};
+    var r=compRev(d);
+    if(myRev>100000)return r>=myRev*0.2 && r<=myRev*5;
+    var a=d.ta||0;
+    if(myAssets>100000)return a>=myAssets*0.2 && a<=myAssets*5;
+    return false;
+  });
+  peers.sort(function(a,b){return compRev(b.y['2024']||{})-compRev(a.y['2024']||{})});
+  return {code:code,comp:comp,peers:[comp].concat(peers)};
+}
+
+function selectCompanyFilter(code){
+  var group=getPeerGroup(code);
+  if(!group||group.peers.length<2){alert('მსგავსი კომპანიები ვერ მოიძებნა');return}
+  activePeerFilter=group;
+  selectedCompanyCode=code;
+  document.getElementById('filterBadge').style.display='flex';
+  document.getElementById('filterLabel').innerHTML='<i class="fas fa-filter" style="margin-right:.3rem"></i> '+group.comp.n+' ('+group.peers.length+' მსგავსი)';
+  renderOverview();
+  renderFinCharts();
+  buildRankData();
+  renderRanking();
+  showComparison(code);
+  document.getElementById('overview').scrollIntoView({behavior:'smooth'});
+}
+
+function clearCompanyFilter(){
+  activePeerFilter=null;
+  selectedCompanyCode=null;
+  document.getElementById('filterBadge').style.display='none';
+  document.getElementById('compareSection').style.display='none';
+  renderOverview();
+  renderFinCharts();
+  buildRankData();
+  renderRanking();
+}
+
 function renderOverview(){
-var a=FIN.a['2024']||{};
-var cards=[{l:'\u10D9\u10DD\u10DB\u10DE\u10D0\u10DC\u10D8\u10D4\u10D1\u10D8',v:fmtNum(a.company_count||1018),i:'fas fa-building',s:'III \u10D9\u10D0\u10E2\u10D4\u10D2\u10DD\u10E0\u10D8\u10D0 - 2024'},{l:'\u10DB\u10D7\u10DA\u10D8\u10D0\u10DC\u10D8 \u10D0\u10E5\u10E2\u10D8\u10D5\u10D4\u10D1\u10D8',v:fmtShort(a.ta),i:'fas fa-coins',s:'\u10E1\u10E3\u10DA \u10D0\u10E5\u10E2\u10D8\u10D5\u10D4\u10D1\u10D8 2024'},{l:'\u10E8\u10D4\u10DB\u10DD\u10E1\u10D0\u10D5\u10D0\u10DA\u10D8',v:fmtShort(a.total_revenue),i:'fas fa-chart-line',s:'\u10E1\u10E3\u10DA \u10E8\u10D4\u10DB\u10DD\u10E1\u10D0\u10D5\u10D0\u10DA\u10D8 2024'},{l:'\u10EC\u10DB\u10D8\u10DC\u10D3\u10D0 \u10DB\u10DD\u10D2\u10D4\u10D1\u10D0',v:fmtShort(a.total_net_income),i:'fas fa-hand-holding-usd',s:'\u10E1\u10E0\u10E3\u10DA\u10D8 \u10E8\u10D4\u10DB\u10DD\u10E1\u10D0\u10D5\u10D0\u10DA\u10D8 2024'}];
-document.getElementById('overviewStats').innerHTML=cards.map(function(c,i){return'<div class="stat-card" style="animation-delay:'+i*0.1+'s"><i class="'+c.i+' icon"></i><div class="label">'+c.l+'</div><div class="value">'+c.v+'</div><div class="sub">'+c.s+'</div></div>'}).join('');
+  var isFiltered=!!activePeerFilter;
+  var title=document.getElementById('overviewTitle');
+  if(isFiltered){
+    var pg=activePeerFilter;
+    var peerList=pg.peers;
+    var f24=pg.comp.y['2024']||{};
+    var myRev=compRev(f24);
+    // Compute peer aggregates
+    var peerTotalAssets=0,peerTotalRev=0,peerTotalGP=0,peerTotalCI=0;
+    peerList.forEach(function(c){var d=c.y['2024']||{};peerTotalAssets+=(d.ta||0);peerTotalRev+=compRev(d);peerTotalGP+=(d.gp||0);peerTotalCI+=(d.ci||0)});
+    // My position
+    var sortedByRev=peerList.slice().sort(function(a,b){return compRev(b.y['2024']||{})-compRev(a.y['2024']||{})});
+    var myPos=sortedByRev.findIndex(function(c){return c.c===pg.code})+1;
+    var myMargin=myRev>0?((f24.gp||0)/myRev*100).toFixed(1):'0';
+    title.innerHTML='<i class="fas fa-crosshairs"></i> '+pg.comp.n+' — პოზიცია ბაზარზე';
+    var cards=[
+      {l:'თქვენი პოზიცია',v:'#'+myPos+' / '+peerList.length,i:'fas fa-trophy',s:'შემოსავლის მიხედვით'},
+      {l:'თქვენი შემოსავალი',v:fmtShort(myRev),i:'fas fa-chart-line',s:'მარჟა: '+myMargin+'%'},
+      {l:'თქვენი აქტივები',v:fmtShort(f24.ta||0),i:'fas fa-coins',s:'კაპიტალი: '+fmtShort(f24.te||0)},
+      {l:'მსგავსი კომპანიები',v:peerList.length+'',i:'fas fa-users',s:'საშ. შემოსავალი: '+fmtShort(peerTotalRev/peerList.length)}
+    ];
+  } else {
+    title.innerHTML='<i class="fas fa-tachometer-alt"></i> მიმოხილვა';
+    var a=FIN.a['2024']||{};
+    var cards=[
+      {l:'კომპანიები',v:fmtNum(a.company_count||1018),i:'fas fa-building',s:'III კატეგორია - 2024'},
+      {l:'მთლიანი აქტივები',v:fmtShort(a.ta),i:'fas fa-coins',s:'სულ აქტივები 2024'},
+      {l:'შემოსავალი',v:fmtShort(a.total_revenue),i:'fas fa-chart-line',s:'სულ შემოსავალი 2024'},
+      {l:'წმინდა მოგება',v:fmtShort(a.total_net_income),i:'fas fa-hand-holding-usd',s:'სრული შემოსავალი 2024'}
+    ];
+  }
+  document.getElementById('overviewStats').innerHTML=cards.map(function(c,i){return'<div class="stat-card" style="animation-delay:'+i*0.1+'s"><i class="'+c.i+' icon"></i><div class="label">'+c.l+'</div><div class="value">'+c.v+'</div><div class="sub">'+c.s+'</div></div>'}).join('');
 }
 
 function renderFinCharts(){
-var yrs=['2022','2023','2024'],ag=FIN.a;
-mkChart('finCharts','\u10D0\u10E5\u10E2\u10D8\u10D5\u10D4\u10D1\u10D8 / \u10D9\u10D0\u10DE\u10D8\u10E2\u10D0\u10DA\u10D8 / \u10D5\u10D0\u10DA\u10D3\u10D4\u10D1\u10E3\u10DA\u10D4\u10D1\u10D4\u10D1\u10D8 (2022-2024)',{type:'bar',data:{labels:yrs,datasets:[{label:'\u10D0\u10E5\u10E2\u10D8\u10D5\u10D4\u10D1\u10D8',data:yrs.map(function(y){return(ag[y]&&ag[y].ta||0)/1e9}),backgroundColor:'#3B82F6'},{label:'\u10D9\u10D0\u10DE\u10D8\u10E2\u10D0\u10DA\u10D8',data:yrs.map(function(y){return(ag[y]&&ag[y].te||0)/1e9}),backgroundColor:'#22C55E'},{label:'\u10D5\u10D0\u10DA\u10D3\u10D4\u10D1\u10E3\u10DA\u10D4\u10D1\u10D4\u10D1\u10D8',data:yrs.map(function(y){return(ag[y]&&ag[y].tl||0)/1e9}),backgroundColor:'#EF4444'}]},options:{responsive:true,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'B \u20BE'}}}},scales:{y:{ticks:{callback:function(v){return v+'B \u20BE'}}}}}});
-mkChart('finCharts','\u10E8\u10D4\u10DB\u10DD\u10E1\u10D0\u10D5\u10D0\u10DA\u10D8 / \u10DB\u10D7\u10DA\u10D8\u10D0\u10DC\u10D8 \u10DB\u10DD\u10D2\u10D4\u10D1\u10D0 / \u10EC\u10DB\u10D8\u10DC\u10D3\u10D0 \u10DB\u10DD\u10D2\u10D4\u10D1\u10D0 (2022-2024)',{type:'bar',data:{labels:yrs,datasets:[{label:'\u10E8\u10D4\u10DB\u10DD\u10E1\u10D0\u10D5\u10D0\u10DA\u10D8',data:yrs.map(function(y){return(ag[y]&&ag[y].total_revenue||0)/1e9}),backgroundColor:'#06B6D4'},{label:'\u10DB\u10D7\u10DA\u10D8\u10D0\u10DC\u10D8 \u10DB\u10DD\u10D2\u10D4\u10D1\u10D0',data:yrs.map(function(y){return(ag[y]&&ag[y].total_gross_profit||0)/1e9}),backgroundColor:'#F59E0B'},{label:'\u10EC\u10DB\u10D8\u10DC\u10D3\u10D0 \u10DB\u10DD\u10D2\u10D4\u10D1\u10D0',data:yrs.map(function(y){return(ag[y]&&ag[y].total_net_income||0)/1e9}),backgroundColor:'#A855F7'}]},options:{responsive:true,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(2)+'B \u20BE'}}}},scales:{y:{ticks:{callback:function(v){return v+'B \u20BE'}}}}}});
+  // Destroy old charts
+  finChartInstances.forEach(function(ch){ch.destroy()});
+  finChartInstances=[];
+  document.getElementById('finCharts').innerHTML='';
+
+  var isFiltered=!!activePeerFilter;
+  var finTitle=document.getElementById('finTitle');
+
+  if(isFiltered){
+    var pg=activePeerFilter;
+    var peerList=pg.peers;
+    finTitle.innerHTML='<i class="fas fa-chart-bar"></i> '+pg.comp.n+' vs კონკურენტები';
+
+    // Chart 1: Top 10 peers by revenue (horizontal bar, highlight selected)
+    var top10=peerList.slice(0,15);
+    var labels=top10.map(function(c){return c.n.length>22?c.n.substring(0,22)+'..':c.n});
+    var bgRevColors=top10.map(function(c){return c.c===pg.code?'rgba(59,130,246,.85)':'rgba(148,163,184,.35)'});
+    finChartInstances.push(mkChart('finCharts','შემოსავალი - შედარება (2024)',{type:'bar',data:{labels:labels,datasets:[{label:'შემოსავალი',data:top10.map(function(c){return compRev(c.y['2024']||{})}),backgroundColor:bgRevColors,borderColor:top10.map(function(c){return c.c===pg.code?'#3B82F6':'#475569'}),borderWidth:1}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return fmtShort(v)}},grid:{color:'#1e293b'}},y:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}}}}));
+
+    // Chart 2: Top 10 by assets
+    var bgAssetColors=top10.map(function(c){return c.c===pg.code?'rgba(34,197,94,.85)':'rgba(148,163,184,.35)'});
+    finChartInstances.push(mkChart('finCharts','აქტივები - შედარება (2024)',{type:'bar',data:{labels:labels,datasets:[{label:'აქტივები',data:top10.map(function(c){return(c.y['2024']||{}).ta||0}),backgroundColor:bgAssetColors,borderColor:top10.map(function(c){return c.c===pg.code?'#22C55E':'#475569'}),borderWidth:1}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return fmtShort(v)}},grid:{color:'#1e293b'}},y:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}}}}));
+
+    // Chart 3: Margin comparison (gross margin %)
+    var marginData=top10.map(function(c){var d=c.y['2024']||{};var r=compRev(d);return r>0?((d.gp||0)/r*100):0});
+    var bgMarginColors=top10.map(function(c){return c.c===pg.code?'rgba(168,85,247,.85)':'rgba(148,163,184,.35)'});
+    finChartInstances.push(mkChart('finCharts','მოგების მარჟა % - შედარება',{type:'bar',data:{labels:labels,datasets:[{label:'მარჟა %',data:marginData,backgroundColor:bgMarginColors,borderColor:top10.map(function(c){return c.c===pg.code?'#A855F7':'#475569'}),borderWidth:1}]},options:{indexAxis:'y',responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{callback:function(v){return v.toFixed(0)+'%'}},grid:{color:'#1e293b'}},y:{ticks:{color:'#94a3b8',font:{size:10}},grid:{display:false}}}}}));
+
+    // Chart 4: Selected company trend (2022-2024)
+    var comp=pg.comp;
+    var yrs=['2022','2023','2024'];
+    var revTrend=yrs.map(function(y){return comp.y[y]?compRev(comp.y[y]):0});
+    var gpTrend=yrs.map(function(y){return comp.y[y]?(comp.y[y].gp||0):0});
+    var ciTrend=yrs.map(function(y){return comp.y[y]?(comp.y[y].ci||0):0});
+    finChartInstances.push(mkChart('finCharts',comp.n+' — ტრენდი (2022-2024)',{type:'line',data:{labels:yrs,datasets:[{label:'შემოსავალი',data:revTrend,borderColor:'#3B82F6',backgroundColor:'rgba(59,130,246,.1)',fill:true,tension:.3},{label:'მთ. მოგება',data:gpTrend,borderColor:'#22C55E',backgroundColor:'rgba(34,197,94,.1)',fill:true,tension:.3},{label:'წმ. მოგება',data:ciTrend,borderColor:'#A855F7',backgroundColor:'rgba(168,85,247,.1)',fill:true,tension:.3}]},options:{responsive:true,plugins:{legend:{position:'top'}},scales:{y:{ticks:{callback:function(v){return fmtShort(v)}}}}}}));
+
+  } else {
+    finTitle.innerHTML='<i class="fas fa-chart-bar"></i> ფინანსური მიმოხილვა';
+    var yrs=['2022','2023','2024'],ag=FIN.a;
+finChartInstances.push(mkChart('finCharts','აქტივები / კაპიტალი / ვალდებულებები (2022-2024)',{type:'bar',data:{labels:yrs,datasets:[{label:'აქტივები',data:yrs.map(function(y){return(ag[y]&&ag[y].ta||0)/1e9}),backgroundColor:'#3B82F6'},{label:'კაპიტალი',data:yrs.map(function(y){return(ag[y]&&ag[y].te||0)/1e9}),backgroundColor:'#22C55E'},{label:'ვალდებულებები',data:yrs.map(function(y){return(ag[y]&&ag[y].tl||0)/1e9}),backgroundColor:'#EF4444'}]},options:{responsive:true,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(1)+'B ₾'}}}},scales:{y:{ticks:{callback:function(v){return v+'B ₾'}}}}}}));
+finChartInstances.push(mkChart('finCharts','შემოსავალი / მთლიანი მოგება / წმინდა მოგება (2022-2024)',{type:'bar',data:{labels:yrs,datasets:[{label:'შემოსავალი',data:yrs.map(function(y){return(ag[y]&&ag[y].total_revenue||0)/1e9}),backgroundColor:'#06B6D4'},{label:'მთლიანი მოგება',data:yrs.map(function(y){return(ag[y]&&ag[y].total_gross_profit||0)/1e9}),backgroundColor:'#F59E0B'},{label:'წმინდა მოგება',data:yrs.map(function(y){return(ag[y]&&ag[y].total_net_income||0)/1e9}),backgroundColor:'#A855F7'}]},options:{responsive:true,plugins:{legend:{position:'top'},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toFixed(2)+'B ₾'}}}},scales:{y:{ticks:{callback:function(v){return v+'B ₾'}}}}}}));
+  } // end else (no filter)
 }
 
 var rankData=[],curSort={col:'ta',dir:-1},detailCharts=[];
 function buildRankData(){
 var dm={};FIN.c.forEach(function(c){dm[c.c]=c});
-rankData=FIN.idx.map(function(item){
+var source=activePeerFilter?activePeerFilter.peers.map(function(c){return{c:c.c,n:c.n,ta:(c.y['2024']||{}).ta||0,rev:compRev(c.y['2024']||{}),gp:(c.y['2024']||{}).gp||0,ci:(c.y['2024']||{}).ci||0}}):FIN.idx;
+rankData=source.map(function(item){
 var det=dm[item.c],d24=det&&det.y&&det.y['2024'],d23=det&&det.y&&det.y['2023'];
 var rev24=d24?compRev(d24):(item.rev||0);
 var ta=d24&&d24.ta!=null?d24.ta:(item.ta||0);
@@ -372,9 +497,11 @@ else{sortCol='leverage';headers=[{k:'#',l:'#'},{k:'name',l:'\u10D9\u10DD\u10DB\u
 if(curSort.col!==sortCol)curSort={col:sortCol,dir:-1};
 var sorted=rankData.slice().sort(function(a,b){var av=a[curSort.col]||0,bv=b[curSort.col]||0;if(curSort.col==='name')return curSort.dir*String(av).localeCompare(String(bv),'ka');return curSort.dir*(av-bv)});
 if(search)sorted=sorted.filter(function(r){return r.name.toLowerCase().indexOf(search)>=0});
-var top=sorted.slice(0,20);
+var top=sorted;
 document.getElementById('rankingHead').innerHTML='<tr>'+headers.map(function(h){if(!h.s)return'<th class="rank-cell">'+h.l+'</th>';var is=curSort.col===h.k,ar=is?(curSort.dir===-1?'\u25BC':'\u25B2'):'\u25BC';return'<th class="'+(is?'sorted':'')+'" onclick="sortRank(\''+h.k+'\')">'+h.l+' <span class="sort-arrow">'+ar+'</span></th>'}).join('')+'</tr>';
-document.getElementById('rankingBody').innerHTML=top.map(function(r,i){return'<tr class="clickable" ondblclick="openDetail(\''+r.code+'\')">'+headers.map(function(h){if(h.k==='#')return'<td class="rank-cell">'+(i+1)+'</td>';if(h.k==='name')return'<td><span class="company-name" onclick="openDetail(\''+r.code+'\')">'+r.name+'</span></td>';if(h.k==='leverage')return'<td>'+r.leverage.toFixed(2)+'x</td>';var v=r[h.k];return'<td class="'+colorCls(v)+'">'+fmtGEL(v)+'</td>'}).join('')+'</tr>'}).join('');
+var showCount=activePeerFilter?top.length:20;
+top=sorted.slice(0,showCount);
+document.getElementById('rankingBody').innerHTML=top.map(function(r,i){var isMe=activePeerFilter&&r.code===activePeerFilter.code;var rowStyle=isMe?' style="background:rgba(59,130,246,.15)"':'';return'<tr class="clickable"'+rowStyle+' ondblclick="openDetail(\''+r.code+'\')">'+headers.map(function(h){if(h.k==='#')return'<td class="rank-cell">'+(i+1)+'</td>';if(h.k==='name')return'<td><span class="company-name" onclick="openDetail(\''+r.code+'\')">'+(isMe?'<i class="fas fa-star" style="color:var(--yellow);font-size:.65rem;margin-right:.3rem"></i>':'')+r.name+'</span></td>';if(h.k==='leverage')return'<td>'+r.leverage.toFixed(2)+'x</td>';var v=r[h.k];return'<td class="'+colorCls(v)+'">'+fmtGEL(v)+'</td>'}).join('')+'</tr>'}).join('');
 }
 
 function sortRank(col){if(curSort.col===col)curSort.dir*=-1;else curSort={col:col,dir:-1};renderRanking()}
@@ -533,7 +660,7 @@ function doMainSearch(){
   count.textContent=matches.length>0?matches.length+' კომპანია ნაპოვნია':'ვერ მოიძებნა';
   results.innerHTML=matches.map(function(c){
     var rev=c.rev||0; var ta=c.ta||0;
-    return '<div class="search-result-card" onclick="selectCompany(\''+c.c+'\')">'+
+    return '<div class="search-result-card" onclick="selectCompanyFilter(\''+c.c+'\')">'+
       '<div><div class="sr-name">'+c.n+'</div><div class="sr-code">ID: '+c.c+'</div></div>'+
       '<div class="sr-metrics">'+
       '<div>აქტივები: <span class="val">'+fmtShort(ta)+'</span></div>'+
