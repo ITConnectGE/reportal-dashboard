@@ -515,8 +515,11 @@ function renderCompanyView(){
   }));
 
   // ===== BAR CHARTS =====
-  var top12=byRev.slice(0,12);
-  var barLabels=top12.map(function(c){return c.n.length>20?c.n.substring(0,20)+'..':c.n});
+  // Always include selected company in charts
+  var top12=byRev.slice(0,11);
+  if(!top12.some(function(c){return c.c===pg.code})){top12.push(comp)}
+  top12.sort(function(a,b){return compRev(b.y['2024']||{})-compRev(a.y['2024']||{})});
+  var barLabels=top12.map(function(c){var nm=c.n.length>18?c.n.substring(0,18)+'..':c.n;return c.c===pg.code?'★ '+nm:nm});
   var hlBg=function(c){return c.c===pg.code?'rgba(59,130,246,.85)':'rgba(148,163,184,.35)'};
   var hlBorder=function(c){return c.c===pg.code?'#3B82F6':'#475569'};
 
